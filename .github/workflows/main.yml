@@ -47,14 +47,14 @@ jobs:
 
       # Generate jacoco report
     - name: Upload Jacoco Coverage Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: jacoco-report
         path: build/reports/jacoco/test/html
 
       # Upload Pitest report
     - name: Upload Pitest Mutation Testing Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pitest-report
         path: build/reports/pitest
