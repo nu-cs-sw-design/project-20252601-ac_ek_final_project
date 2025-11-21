@@ -16,9 +16,20 @@ public class UI {
 
     public int promptPlayer(String key) {
         String message = this.resourceBundle.getString(key);
-        System.out.println(message);
         Scanner scanner = new Scanner(System.in, "UTF-8");
-        int userInput = scanner.nextInt();
+        int userInput = 0;
+        boolean validInput = false;
+        
+        while (!validInput) {
+            try {
+                System.out.println(message);
+                userInput = scanner.nextInt();
+                validInput = true;
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid input - please enter an integer");
+                scanner.nextLine();
+            }
+        }
         return userInput;
     }
 
