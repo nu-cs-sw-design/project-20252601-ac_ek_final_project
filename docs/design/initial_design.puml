@@ -1,0 +1,44 @@
+@startuml
+package ui{
+    +class Main{
+        +{static}main(String[]): void
+    }
+}
+
+package domain{
+    +class Game{
+        -players: collection<Player>
+        -deck????
+    }
+
+    +class Player{
+        - some sort of ID
+        - hand: collection<Card>
+
+        +Player(hand: collection<Card>, id) // maybe?
+        +addCard(card: Card): void
+        +viewHand(): ??? // can't write ui code in this method. so need to return sth for ui to display
+    }
+
+    +class Deck{
+        -cards: collection<Card>
+
+        +drawTop(): Card
+        +shuffle(): void // public method or not?
+        +addCardToBottom(): void?
+    }
+
+    +class Card{
+        -name: String?or Enum?
+        -description: String?
+
+        +Card(String, String)
+        ~getName(): String //package private?
+        ~getDescription(): String //package private?
+    }
+Player -->"*" Card
+Deck --> "*" Card
+Game --> Deck
+Game --> Player
+}
+@enduml

@@ -1,0 +1,218 @@
+@startuml
+package ui{
+    +class UI{
+        -Locale: language
+        -ResourceBundle: language implementation
+        +promptPlayer(String): int
+        +displayMessage(String): void
+        +displayFormattedMessage(String, Object...): void
+        +changeLanguage(String, String): void
+    }
+}
+
+package domain{
+    +class Game{
+        -numberOfPlayers: int
+        -players: List<Player>
+        -ui: UI
+        -deck: Deck
+        -currentPlayer: Player
+        -isGameOver: boolean
+        +Game(int) //constructor
+        +takeTurn(): void
+        +deletePlayer(int): void
+        +getCurrentPlayer(): Player
+        +setCurrentPlayer(Player): void
+        +getPlayer(int): Player
+        +setPlayer(Player): void
+        +nextPlayer(): void
+        +getNumberOfPlayers(): int
+        +getDeck(): Deck
+        +getUI(): UI
+        +getPlayers(): List<Player>
+        +setPlayers(List<Player>): void
+        +setDeck(Deck): void
+        +setNextPlayerTargetPlayer(Player): void
+        +setCurrentPlayerTurns(int): void
+        +emptyCurrentPlayerHand(): void
+        +displayPlayerHand(Player, Boolean): void
+        +setCurrentPlayerHasNope(Boolean): void
+        +getCurrentPlayerHasNope(): Boolean
+        +isGameOver(): Boolean
+        +setGameOver(Boolean): void
+    }
+
+    +class Player{
+        - id: int
+        - hand: List<Card>
+        - visibleHand: List<Card>
+        - numberOfTurns: int
+        - visibility: boolean
+        - hasNope: boolean
+        +Player(id, hand) // constructor
+        +addCard(Card): void
+        +addVisibleCard(Card): void
+        +getVisibleHand(): List<Card>
+        +getHand(): List<Card>
+        +setHand(List<Card>): void
+        +removeCard(int): void
+        +chooseCard(int): Card
+        +hasCard(Card): int
+        +getID(): int
+        +getIsTurnOver(): boolean
+        +getNumberOfTurns(): int
+        +setNumberOfTurns(int): void
+        +decreaseTurnsByOne(): void
+        +hasTwoOf(): boolean
+        +shuffleHand(): void
+        +getHandVisibility(): boolean
+        +setHandVisibility(boolean): void
+        +isHandEmpty(): boolean
+        +getHandCount(): int
+        +getHasNope(): boolean
+        +setHasNope(boolean): void
+    }
+
+    +class Deck{
+        -cards: List<Card>
+        +Deck() // constructor
+        +numberOfCards(): int
+        +addCard(Card): void
+        +drawTopCard(): Card
+        +drawBottomCard(): Card
+        +shuffle(): void
+        +peekTopDeck(int): List<Card>
+        +alterTopDeck(List, List): void
+        +moveExplodingKittensToTop(): void
+        +swapTopAndBottom(): void
+        +insertCardAtIndex(Card, int): void
+        +copy(): Deck
+        +isEmpty(): boolean
+    }
+
+    +class Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+
+    +abstract class AlterTheFuture extends Card{
+        +AlterTheFuture(enum) //constructor
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Attack extends Card{
+            +getName(): String
+            +playCard(Game, UI): void
+    }
+    +abstract class Catcard extends Card{
+        +CatCard(enum) //constructor
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class CatomicBomb extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class CurseofCatButt extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Defuse extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class DrawFromBottom extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class ExplodingKitten extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Favor extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class FeralCat extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class GarbageCollection extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class ImplodingKitten extends Card{
+        +ImplodingKitten(enum) //constructor
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Mark extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Nope extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Reverse extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class SeeTheFuture extends Card{
+        +SeeTheFuture(enum) //constructor
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Shuffle extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class Skip extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class StreakingKitten extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class SuperSkip extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class SwapTopAndBottom extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+    +abstract class TargetedAttack extends Card{
+        +getName(): String
+        +playCard(Game, UI): void
+    }
+
+    +class GameController {
+        -game: Game
+        -ui: UI
+        +GameController(Game, UI) //constructor
+        +startGame(): void
+        +promptNumberOfPlayers(): void
+        +setGame(Game): void
+    }
+
+    +class Main{
+            +{static}main(String[]): void
+    }
+Main --> GameController
+GameController --> Game
+Game --> Player
+Game --> Deck
+Game --> Card
+Player --> Card
+Player --> Deck
+Player --> Game
+Deck --> Card
+Deck --> Game
+Deck --> Player
+Card --> Game
+Card --> Player
+Card --> Deck
+}
+@enduml
