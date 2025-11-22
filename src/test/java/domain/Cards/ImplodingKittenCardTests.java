@@ -77,6 +77,11 @@ public class ImplodingKittenCardTests {
         EasyMock.expect(player1.getId()).andReturn(1);
         game.deletePlayer(1);
         EasyMock.expectLastCall();
+        ui.displayMessage("playerEliminated");
+        EasyMock.expectLastCall();
+        EasyMock.expect(game.getPlayers()).andReturn(java.util.Arrays.asList(player1, player1));
+        game.nextPlayer();
+        EasyMock.expectLastCall();
 
         EasyMock.replay(game, ui, player1);
 

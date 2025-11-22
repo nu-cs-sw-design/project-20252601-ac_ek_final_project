@@ -103,15 +103,12 @@ public class FavorCardTests {
         EasyMock.expect(chosenPlayer.removeCard(CHOSEN_CARD_INDEX)).andReturn(NEW_HAND_SIZE);
         game.setPlayer(chosenPlayer);
         EasyMock.expectLastCall();
-        game.setPlayer(currentPlayer);
+        EasyMock.expect(explodingKittenCard.getName()).andReturn("Exploding Kitten");
+        explodingKittenCard.playCard(game, ui);
         EasyMock.expectLastCall();
         int cardIndex = 0;
         EasyMock.expect(currentPlayer.hasCard(favorCard.getName())).andReturn(cardIndex);
         game.removeCurrentPlayerCard(cardIndex);
-        EasyMock.expectLastCall();
-        EasyMock.expect(explodingKittenCard.getName()).andReturn("Exploding Kitten");
-        EasyMock.expect(currentPlayer.addCard(explodingKittenCard)).andReturn(NEW_HAND_SIZE);
-        explodingKittenCard.playCard(game, ui);
         EasyMock.expectLastCall();
 
         EasyMock.replay(ui, game, currentPlayer, chosenPlayer, explodingKittenCard);

@@ -373,7 +373,7 @@ public class Game {
     }
 
     public Player getWinner() {
-        if (players.size() == MINIMUM_PLAYERS) {
+        if (players != null && players.size() == MINIMUM_PLAYERS) {
             return new Player(players.get(0));
         }
         return null;

@@ -32,10 +32,6 @@ public class MarkCardTests {
         for (int i = 0; i < numPlayers; i++) {
             players.add(i == targetId ? targetPlayer : EasyMock.createMock(Player.class));
         }
-        ArrayList<Card> targetPlayerHand = new ArrayList<>();
-        for (int i = 0; i < numCards; i++) {
-            targetPlayerHand.add(i == targetCardIndex ? targetCard : EasyMock.createMock(Card.class));
-        }
         ArrayList<Card> targetPlayerVisibleHand = new ArrayList<>();
 
         int numberOfVisibleCards = 1;
@@ -48,7 +44,7 @@ public class MarkCardTests {
         EasyMock.expect(game.getPlayers()).andReturn(players).anyTimes();
         EasyMock.expect(game.getPlayer(targetId)).andReturn(targetPlayer).anyTimes();
         EasyMock.expect(currentPlayer.getId()).andReturn(currentPlayerId).anyTimes();
-        EasyMock.expect(targetPlayer.getHand()).andReturn(targetPlayerHand).anyTimes();
+        EasyMock.expect(targetPlayer.getHandCount()).andReturn(numCards).anyTimes();
         EasyMock.expect(targetPlayer.chooseCard(targetCardIndex)).andReturn(targetCard).anyTimes();
         EasyMock.expect(targetPlayer.getVisibleHand()).andReturn(targetPlayerVisibleHand).anyTimes();
         EasyMock.expect(targetPlayer.addVisibleCard(targetCard)).andReturn(numberOfVisibleCards);
@@ -129,10 +125,6 @@ public class MarkCardTests {
         for (int i = 0; i < numPlayers; i++) {
             players.add(i == targetId ? targetPlayer : EasyMock.createMock(Player.class));
         }
-        ArrayList<Card> targetPlayerHand = new ArrayList<>();
-        for (int i = 0; i < numCards; i++) {
-            targetPlayerHand.add(i == targetCardIndex ? targetCard : EasyMock.createMock(Card.class));
-        }
         ArrayList<Card> targetPlayerVisibleHand = new ArrayList<>();
         int numberOfVisibleCards = 1;
 
@@ -144,7 +136,7 @@ public class MarkCardTests {
         EasyMock.expect(game.getPlayers()).andReturn(players).anyTimes();
         EasyMock.expect(game.getPlayer(targetId)).andReturn(targetPlayer).anyTimes();
         EasyMock.expect(currentPlayer.getId()).andReturn(currentPlayerId).anyTimes();
-        EasyMock.expect(targetPlayer.getHand()).andReturn(targetPlayerHand).anyTimes();
+        EasyMock.expect(targetPlayer.getHandCount()).andReturn(numCards).anyTimes();
         EasyMock.expect(targetPlayer.chooseCard(targetCardIndex)).andReturn(targetCard).anyTimes();
         EasyMock.expect(targetPlayer.getVisibleHand()).andReturn(targetPlayerVisibleHand).anyTimes();
         EasyMock.expect(targetPlayer.addVisibleCard(targetCard)).andReturn(numberOfVisibleCards);
@@ -213,10 +205,6 @@ public class MarkCardTests {
         for (int i = 0; i < numPlayers; i++) {
             players.add(i == targetId ? targetPlayer : EasyMock.createMock(Player.class));
         }
-        ArrayList<Card> targetPlayerHand = new ArrayList<>();
-        for (int i = 0; i < numCards; i++) {
-            targetPlayerHand.add(EasyMock.createMock(Card.class));
-        }
 
         ui.displayMessage("markCard");
         EasyMock.expectLastCall();
@@ -226,7 +214,7 @@ public class MarkCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(currentPlayer).anyTimes();
         EasyMock.expect(game.getPlayer(targetId)).andReturn(targetPlayer).anyTimes();
         EasyMock.expect(currentPlayer.getId()).andReturn(currentPlayerId).anyTimes();
-        EasyMock.expect(targetPlayer.getHand()).andReturn(targetPlayerHand).anyTimes();
+        EasyMock.expect(targetPlayer.getHandCount()).andReturn(numCards).anyTimes();
 
         EasyMock.replay(game, ui, targetPlayer, currentPlayer);
 
@@ -255,10 +243,6 @@ public class MarkCardTests {
         for (int i = 0; i < numPlayers; i++) {
             players.add(i == targetId ? targetPlayer : EasyMock.createMock(Player.class));
         }
-        ArrayList<Card> targetPlayerHand = new ArrayList<>();
-        for (int i = 0; i < numCards; i++) {
-            targetPlayerHand.add(EasyMock.createMock(Card.class));
-        }
 
         ui.displayMessage("markCard");
         EasyMock.expectLastCall();
@@ -268,7 +252,7 @@ public class MarkCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(currentPlayer).anyTimes();
         EasyMock.expect(game.getPlayer(targetId)).andReturn(targetPlayer).anyTimes();
         EasyMock.expect(currentPlayer.getId()).andReturn(currentPlayerId).anyTimes();
-        EasyMock.expect(targetPlayer.getHand()).andReturn(targetPlayerHand).anyTimes();
+        EasyMock.expect(targetPlayer.getHandCount()).andReturn(numCards).anyTimes();
 
         EasyMock.replay(game, ui, targetPlayer, currentPlayer);
 
@@ -298,10 +282,6 @@ public class MarkCardTests {
         for (int i = 0; i < numPlayers; i++) {
             players.add(i == targetId ? targetPlayer : EasyMock.createMock(Player.class));
         }
-        ArrayList<Card> targetPlayerHand = new ArrayList<>();
-        for (int i = 0; i < numCards; i++) {
-            targetPlayerHand.add(i == targetCardIndex ? targetCard : EasyMock.createMock(Card.class));
-        }
         ArrayList<Card> targetPlayerVisibleHand = new ArrayList<>();
         targetPlayerVisibleHand.add(targetCard);
 
@@ -313,7 +293,7 @@ public class MarkCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(currentPlayer).anyTimes();
         EasyMock.expect(game.getPlayer(targetId)).andReturn(targetPlayer).anyTimes();
         EasyMock.expect(currentPlayer.getId()).andReturn(currentPlayerId).anyTimes();
-        EasyMock.expect(targetPlayer.getHand()).andReturn(targetPlayerHand).anyTimes();
+        EasyMock.expect(targetPlayer.getHandCount()).andReturn(numCards).anyTimes();
         EasyMock.expect(targetPlayer.chooseCard(targetCardIndex)).andReturn(targetCard).anyTimes();
         EasyMock.expect(targetPlayer.getVisibleHand()).andReturn(targetPlayerVisibleHand).anyTimes();
 

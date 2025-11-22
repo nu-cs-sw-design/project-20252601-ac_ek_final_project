@@ -467,9 +467,24 @@ public class GameTests {
         Player currentPlayer = game.getCurrentPlayer();
         game.setCurrentPlayerTurns(0);
 
-
-        mockUI.displayMessage("turnStart");
+        mockUI.clearScreen();
+        EasyMock.expectLastCall();
+        mockUI.displayMessage("activePlayers");
+        EasyMock.expectLastCall();
+        mockUI.displayFormattedMessage("playerInfo", 1);
+        EasyMock.expectLastCall();
+        mockUI.displayFormattedMessage("playerInfo", 2);
+        EasyMock.expectLastCall();
+        mockUI.displayMessage("separator");
+        EasyMock.expectLastCall();
+        mockUI.displayFormattedMessage("nextPlayer", 2);
+        EasyMock.expectLastCall();
+        mockUI.displayMessage("separator");
+        EasyMock.expectLastCall();
         mockUI.displayFormattedMessage("player", currentPlayer.getId());
+        EasyMock.expectLastCall();
+        mockUI.displayMessage("turnStart");
+        EasyMock.expectLastCall();
         mockUI.displayFormattedMessage("endTurn", currentPlayer.getId());
         EasyMock.expectLastCall();
 
