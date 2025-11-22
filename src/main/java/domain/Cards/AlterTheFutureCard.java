@@ -46,17 +46,52 @@ public class AlterTheFutureCard extends Card{
         }
 
         List<Integer> newIndexes = new ArrayList<>();
+        int maxIndex = cardsToAlter.size() - 1;
 
         for (int i = 0; i < cardsToAlter.size(); i++) {
             ui.displayFormattedMessage("cardAtIndex", i);
-            int newIndex = ui.promptPlayer("newIndex");
-            newIndexes.add(newIndex);
+            boolean validInput = false;
+            while (!validInput) {
+                int newIndex = ui.promptPlayer("newIndex");
+                if (newIndex >= 0 && newIndex <= maxIndex) {
+                    newIndexes.add(newIndex);
+                    validInput = true;
+                } else {
+                    ui.displayMessage("indexOutOfBounds");
+                    ui.displayMessage("tryAgain");
+                }
+            }
         }
 
         setIndexes(newIndexes);
 
-        deck.alterTopDeck(cardsToAlter, indexes);
-        game.setDeck(deck);
+        boolean validIndexes = false;
+        while (!validIndexes) {
+            try {
+                deck.alterTopDeck(cardsToAlter, indexes);
+                game.setDeck(deck);
+                validIndexes = true;
+            } catch (IllegalArgumentException e) {
+                ui.displayMessage(e.getMessage());
+                ui.displayMessage("tryAgain");
+                newIndexes.clear();
+                for (int i = 0; i < cardsToAlter.size(); i++) {
+                    ui.displayFormattedMessage("cardAtIndex", i);
+                    boolean validInput = false;
+                    while (!validInput) {
+                        int newIndex = ui.promptPlayer("newIndex");
+                        if (newIndex >= 0 && newIndex <= maxIndex) {
+                            newIndexes.add(newIndex);
+                            validInput = true;
+                        } else {
+                            ui.displayMessage("indexOutOfBounds");
+                            ui.displayMessage("tryAgain");
+                        }
+                    }
+                }
+                setIndexes(newIndexes);
+            }
+        }
 
         Player currentPlayer = game.getCurrentPlayer();
         int cardIndex = currentPlayer.hasCard(this.getName());

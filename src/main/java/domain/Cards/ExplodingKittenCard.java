@@ -62,9 +62,20 @@ public class ExplodingKittenCard extends Card {
 
     private void insertIntoDeck(Game game, UI ui) {
         Deck deck = game.getDeck();
-        int insertIndex = ui.promptPlayer("whereToInsert");
-        deck.insertCardAtIndex(new ExplodingKittenCard(), insertIndex);
-        game.setDeck(deck);
-        ui.displayMessage("insertedCard");
+        int insertIndex;
+        boolean validIndex = false;
+        
+        while (!validIndex) {
+            insertIndex = ui.promptPlayer("whereToInsert");
+            try {
+                deck.insertCardAtIndex(new ExplodingKittenCard(), insertIndex);
+                game.setDeck(deck);
+                ui.displayMessage("insertedCard");
+                validIndex = true;
+            } catch (IndexOutOfBoundsException e) {
+                ui.displayMessage("indexOutOfBounds");
+                ui.displayMessage("tryAgain");
+            }
+        }
     }
 }

@@ -35,9 +35,19 @@ public class ImplodingKittenCard extends Card {
 
             Deck deck = game.getDeck();
             ui.displayFormattedMessage("ImplodingKittenIndexHelp", deck.numberOfCards());
-            int insertImplodingKittenAtIndex = ui.promptPlayer("whereToInsert");
-            deck.insertCardAtIndex(new ImplodingKittenCard(ImplodingKittenCard.DrawnBefore.DRAWN), insertImplodingKittenAtIndex);
-            game.setDeck(deck);
+            boolean validIndex = false;
+            
+            while (!validIndex) {
+                int insertImplodingKittenAtIndex = ui.promptPlayer("whereToInsert");
+                try {
+                    deck.insertCardAtIndex(new ImplodingKittenCard(ImplodingKittenCard.DrawnBefore.DRAWN), insertImplodingKittenAtIndex);
+                    game.setDeck(deck);
+                    validIndex = true;
+                } catch (IndexOutOfBoundsException e) {
+                    ui.displayMessage("indexOutOfBounds");
+                    ui.displayMessage("tryAgain");
+                }
+            }
         }
         else {
             ui.displayMessage("implodingKittenFaceUp");
