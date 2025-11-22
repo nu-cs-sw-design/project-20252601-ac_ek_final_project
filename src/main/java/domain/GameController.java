@@ -36,6 +36,10 @@ public class GameController {
         }
 
         ui.displayMessage("gameOver");
+        Player winner = game.getWinner();
+        if (winner != null) {
+            ui.displayFormattedMessage("winner", winner.getId());
+        }
     }
 
     private int promptNumberOfPlayers() {
