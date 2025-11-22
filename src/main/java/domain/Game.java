@@ -158,8 +158,17 @@ public class Game {
 
                         if (!actionCanceled) {
                             try{
+                                int playerCountBefore = getNumberOfPlayers();
                                 selectedCard.playCard(this, ui);
                                 validCardPlayed = true;
+                                
+                                if (getNumberOfPlayers() < playerCountBefore) {
+                                    if (players.size() == MINIMUM_PLAYERS) {
+                                        setGameOver(true);
+                                    }
+                                    ui.displayMessage("playerEliminated");
+                                    return;
+                                }
                             } catch (Exception exception) {
                                 ui.displayMessage(exception.getMessage());
                                 ui.displayMessage("tryAgain");

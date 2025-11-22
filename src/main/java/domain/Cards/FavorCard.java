@@ -29,17 +29,18 @@ public class FavorCard extends Card{
         int chosenCardIndex = ui.promptPlayer("chosenPlayerCardIndex");
         Card choosenCard = chosenPlayer.chooseCard(chosenCardIndex);
         chosenPlayer.removeCard(chosenCardIndex);
-        curentPlayer.addCard(choosenCard);
         game.setPlayer(chosenPlayer);
-        game.setPlayer(curentPlayer);
-        int cardIndex = curentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
 
         if (!Objects.equals(choosenCard.getName(), "Exploding Kitten")) {
+            curentPlayer.addCard(choosenCard);
+            game.setPlayer(curentPlayer);
             ui.displayMessage("addCard");
         } else {
             choosenCard.playCard(game, ui);
         }
+
+        int cardIndex = curentPlayer.hasCard(this.getName());
+        game.removeCurrentPlayerCard(cardIndex);
     }
 
     public static int[] getCounts() {
