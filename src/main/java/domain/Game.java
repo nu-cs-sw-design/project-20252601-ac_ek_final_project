@@ -112,6 +112,7 @@ public class Game {
         int numPlayers = getNumberOfPlayers();
 
         ui.clearScreen();
+        displayGameInfo();
         ui.displayFormattedMessage("player", currentPlayer.getId());
         ui.displayMessage("turnStart");
         displayMarkCards();
@@ -405,5 +406,18 @@ public class Game {
                 ui.displayFormattedMessage("cardDisplay", "-", card.getName());
             }
         }
+    }
+
+    private void displayGameInfo() {
+        ui.displayMessage("activePlayers");
+        for (Player player : players) {
+            ui.displayFormattedMessage("playerInfo", player.getId());
+        }
+        ui.displayMessage("separator");
+        int nextPlayerIndex = 1;
+        if (players.size() > 1) {
+            ui.displayFormattedMessage("nextPlayer", players.get(nextPlayerIndex).getId());
+        }
+        ui.displayMessage("separator");
     }
 }
