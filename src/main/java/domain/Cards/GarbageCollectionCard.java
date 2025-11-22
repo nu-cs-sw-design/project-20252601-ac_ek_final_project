@@ -17,6 +17,10 @@ public class GarbageCollectionCard extends Card {
     public void playCard(Game game, UI ui) {
         ui.displayMessage("garbageCollectionCard");
 
+        Player currentPlayer = game.getCurrentPlayer();
+        int cardIndex = currentPlayer.hasCard(this.getName());
+        game.removeCurrentPlayerCard(cardIndex);
+
         Deck deck = game.getDeck();
         List<Player> players = game.getPlayers();
 
@@ -31,9 +35,5 @@ public class GarbageCollectionCard extends Card {
 
         deck.shuffle();
         game.setDeck(deck);
-
-        Player currentPlayer = game.getCurrentPlayer();
-        int cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
     }
 }
