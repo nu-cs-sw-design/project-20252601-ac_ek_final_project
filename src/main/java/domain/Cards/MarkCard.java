@@ -25,7 +25,7 @@ public class MarkCard extends Card {
         }
 
         int targetCardIndex = ui.promptPlayer("targetCardIndex");
-        if (targetCardIndex < 0 || targetCardIndex >= targetPlayer.getHand().size()) {
+        if (targetCardIndex < 0 || targetCardIndex >= targetPlayer.getHandCount()) {
             throw new UnsupportedOperationException("invalidCardIndex");
         }
 
