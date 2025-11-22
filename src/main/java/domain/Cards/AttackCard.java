@@ -25,7 +25,7 @@ public class AttackCard extends Card {
         } else {
             nextPlayerTurns = currentPlayer.getNumberOfTurns() + NUM_TURNS_TO_ADD;
         }
-        game.setCurrentPlayerTurn(SET_CURRENT_PLAYER_TURNS);
+        game.setCurrentPlayerTurns(SET_CURRENT_PLAYER_TURNS);
 
         int cardIndex = currentPlayer.hasCard(this.getName());
         game.removeCurrentPlayerCard(cardIndex);

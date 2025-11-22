@@ -30,7 +30,7 @@ public class AttackCardTests {
         EasyMock.expect(currentPlayer.hasCard(card.getName())).andReturn(mockIndex);
         game.removeCurrentPlayerCard(mockIndex);
         EasyMock.expectLastCall().once();
-        game.setCurrentPlayerTurn(initialTurns);
+        game.setCurrentPlayerTurns(initialTurns);
         EasyMock.expectLastCall();
         game.setNextPlayerTurns(setTurns);
         EasyMock.expectLastCall();
@@ -62,7 +62,7 @@ public class AttackCardTests {
         EasyMock.expect(currentPlayer.hasCard(card.getName())).andReturn(mockIndex);
         game.removeCurrentPlayerCard(mockIndex);
         EasyMock.expectLastCall().once();
-        game.setCurrentPlayerTurn(mockIndex);
+        game.setCurrentPlayerTurns(mockIndex);
         EasyMock.expectLastCall();
         game.setNextPlayerTurns(setTurns);
         EasyMock.expectLastCall();
@@ -95,7 +95,7 @@ public class AttackCardTests {
         EasyMock.expect(currentPlayer.hasCard(card.getName())).andReturn(mockIndex);
         game.removeCurrentPlayerCard(mockIndex);
         EasyMock.expectLastCall().once();
-        game.setCurrentPlayerTurn(mockIndex);
+        game.setCurrentPlayerTurns(mockIndex);
         EasyMock.expectLastCall();
         game.setNextPlayerTurns(setTurns);
         EasyMock.expectLastCall();

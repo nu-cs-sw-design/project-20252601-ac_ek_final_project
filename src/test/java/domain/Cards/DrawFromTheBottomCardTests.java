@@ -50,7 +50,7 @@ public class DrawFromTheBottomCardTests {
         EasyMock.expect(deck.drawBottomCard()).andReturn(attackCard);
         game.addToCurrentPlayer(attackCard);
         EasyMock.expectLastCall();
-        game.setCurrentPlayerTurn(finalTurns);
+        game.setCurrentPlayerTurns(finalTurns);
         EasyMock.expectLastCall();
         game.setDeck(deck);
         EasyMock.expectLastCall();
@@ -84,7 +84,7 @@ public class DrawFromTheBottomCardTests {
         EasyMock.expect(deck.drawBottomCard()).andReturn(nopeCard);
         game.addToCurrentPlayer(nopeCard);
         EasyMock.expectLastCall();
-        game.setCurrentPlayerTurn(finalTurns);
+        game.setCurrentPlayerTurns(finalTurns);
         EasyMock.expectLastCall();
         game.setDeck(deck);
         EasyMock.expectLastCall();
@@ -118,7 +118,7 @@ public class DrawFromTheBottomCardTests {
         EasyMock.expect(deck.drawBottomCard()).andReturn(skipCard);
         game.addToCurrentPlayer(skipCard);
         EasyMock.expectLastCall();
-        game.setCurrentPlayerTurn(finalTurns);
+        game.setCurrentPlayerTurns(finalTurns);
         EasyMock.expectLastCall();
         game.setDeck(deck);
         EasyMock.expectLastCall();
@@ -152,7 +152,7 @@ public class DrawFromTheBottomCardTests {
         EasyMock.expect(deck.drawBottomCard()).andReturn(attackCard);
         game.addToCurrentPlayer(attackCard);
         EasyMock.expectLastCall();
-        game.setCurrentPlayerTurn(finalTurns);
+        game.setCurrentPlayerTurns(finalTurns);
         EasyMock.expectLastCall();
         game.setDeck(deck);
         EasyMock.expectLastCall();
@@ -183,7 +183,7 @@ public class DrawFromTheBottomCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(player);
         explodingKitten.playCard(game, ui);
         EasyMock.expectLastCall();
-        game.setCurrentPlayerTurn(0);
+        game.setCurrentPlayerTurns(0);
         game.setDeck(deck);
         EasyMock.expect(player.hasCard(drawFromTheBottomCard.getName())).andReturn(0);
         game.removeCurrentPlayerCard(0);
@@ -211,7 +211,7 @@ public class DrawFromTheBottomCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(player);
         implodingKittenCard.playCard(game, ui);
         EasyMock.expectLastCall();
-        game.setCurrentPlayerTurn(0);
+        game.setCurrentPlayerTurns(0);
         game.setDeck(deck);
         EasyMock.expect(player.hasCard(drawFromTheBottomCard.getName())).andReturn(0);
         game.removeCurrentPlayerCard(0);

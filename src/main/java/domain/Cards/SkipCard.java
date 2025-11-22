@@ -19,7 +19,7 @@ public class SkipCard extends Card {
         Player currPlayer = game.getCurrentPlayer();
         int turns = currPlayer.getNumberOfTurns();
         if (turns > 0) {
-            game.setCurrentPlayerTurn(turns - 1);
+            game.setCurrentPlayerTurns(turns - 1);
         }
 
         int cardIndex = currPlayer.hasCard(this.getName());

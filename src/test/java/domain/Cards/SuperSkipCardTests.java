@@ -22,7 +22,7 @@ public class SuperSkipCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(player);
         EasyMock.expect(player.getNumberOfTurns()).andReturn(numTurns);
         int cardIndex = 0;
-        game.setCurrentPlayerTurn(setTurns);
+        game.setCurrentPlayerTurns(setTurns);
         EasyMock.expect(player.hasCard(superSkipCard.getName())).andReturn(cardIndex);
         game.removeCurrentPlayerCard(cardIndex);
         EasyMock.expectLastCall();
@@ -70,7 +70,7 @@ public class SuperSkipCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(player);
         EasyMock.expect(player.getNumberOfTurns()).andReturn(numTurns);
         int cardIndex = 0;
-        game.setCurrentPlayerTurn(setTurns);
+        game.setCurrentPlayerTurns(setTurns);
         EasyMock.expect(player.hasCard(superSkipCard.getName())).andReturn(cardIndex);
         game.removeCurrentPlayerCard(cardIndex);
         EasyMock.expectLastCall();

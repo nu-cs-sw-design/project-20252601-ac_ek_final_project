@@ -16,7 +16,7 @@ public class SuperSkipCard extends Card {
 
         Player currPlayer = game.getCurrentPlayer();
         if (currPlayer.getNumberOfTurns() > 0) {
-            game.setCurrentPlayerTurn(0);
+            game.setCurrentPlayerTurns(0);
         }
 
         int cardIndex = currPlayer.hasCard(this.getName());

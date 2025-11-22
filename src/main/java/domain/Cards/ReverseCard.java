@@ -30,7 +30,7 @@ public class ReverseCard extends Card{
         if (players.size() == 2) {
             int turns = currentPlayer.getNumberOfTurns();
             if (turns > 0) {
-                game.setCurrentPlayerTurn(turns - 1);
+                game.setCurrentPlayerTurns(turns - 1);
             }
         }
         else {

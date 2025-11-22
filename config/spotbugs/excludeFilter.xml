@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude EI_EXPOSE_REP and EI_EXPOSE_REP2 for UI field/parameter -->
+    <!-- UI is a shared service object (like a logger), not mutable state that needs defensive copying -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Field name="ui"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Method name="getUI"/>
+    </Match>
+</FindBugsFilter>

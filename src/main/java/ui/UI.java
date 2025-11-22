@@ -52,7 +52,7 @@ public class UI {
     public void clearScreen() {
         try {
             new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        } catch (Exception e) {
+        } catch (java.io.IOException | InterruptedException e) {
             // Fallback: print multiple newlines if clearing fails
             for (int i = 0; i < 50; i++) {
                 System.out.println();

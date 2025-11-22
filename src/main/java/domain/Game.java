@@ -32,6 +32,7 @@ public class Game {
         this.isGameOver = game.isGameOver();
     }
 
+    @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
     public Game(int numberOfPlayers, UI ui) {
         this.players = new ArrayList<>(numberOfPlayers);
         this.numberOfPlayers = numberOfPlayers;
@@ -239,10 +240,6 @@ public class Game {
         this.currentPlayer = new Player(player);
     }
 
-    public void setCurrentPlayerTurn(int turn) {
-        this.currentPlayer.setNumberOfTurns(turn);
-    }
-
     public void setPlayerTurns(int playerIndex, int turns) {
         try {
             int playerId = getPlayer(playerIndex).getId();
@@ -290,6 +287,7 @@ public class Game {
         return deck.copy();
     }
 
+    @SuppressWarnings("EI_EXPOSE_REP") // UI is a shared service object, not mutable state
     public UI getUI() {
         return this.ui;
     }

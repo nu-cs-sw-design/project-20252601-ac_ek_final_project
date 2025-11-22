@@ -626,11 +626,11 @@ public class GameTests {
     }
 
     @Test
-    public void testSetCurrentPlayerTurn_codeCoverage() {
+    public void testSetCurrentPlayerTurns_codeCoverage() {
         int numOfPlayers = 2;
         Game game = new Game(numOfPlayers);
-        int turns = 5;
-        game.setCurrentPlayerTurn(turns);
+        int turns = 6;
+        game.setCurrentPlayerTurns(turns);
         assertEquals(turns, game.getCurrentPlayer().getNumberOfTurns());
     }
 

@@ -21,7 +21,7 @@ public class SkipCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(player);
         EasyMock.expect(player.getNumberOfTurns()).andReturn(numTurns);
         int cardIndex = 0;
-        game.setCurrentPlayerTurn(numTurns-1);
+        game.setCurrentPlayerTurns(numTurns-1);
         EasyMock.expect(player.hasCard(skipCard.getName())).andReturn(cardIndex);
         game.removeCurrentPlayerCard(cardIndex);
         EasyMock.expectLastCall();
@@ -45,7 +45,7 @@ public class SkipCardTests {
         EasyMock.expect(game.getCurrentPlayer()).andReturn(player);
         EasyMock.expect(player.getNumberOfTurns()).andReturn(numTurns);
         int cardIndex = 0;
-        game.setCurrentPlayerTurn(numTurns-1);
+        game.setCurrentPlayerTurns(numTurns-1);
         EasyMock.expect(player.hasCard(skipCard.getName())).andReturn(cardIndex);
         game.removeCurrentPlayerCard(cardIndex);
         EasyMock.expectLastCall();

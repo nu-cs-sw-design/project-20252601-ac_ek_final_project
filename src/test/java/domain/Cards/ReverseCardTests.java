@@ -34,7 +34,7 @@ public class ReverseCardTests {
         game.removeCurrentPlayerCard(cardIndex);
         EasyMock.expectLastCall();
         EasyMock.expect(player1.getNumberOfTurns()).andReturn(numTurns);
-        game.setCurrentPlayerTurn(newNumTurns);
+        game.setCurrentPlayerTurns(newNumTurns);
 
         EasyMock.replay(game, player1, player2, ui);
 

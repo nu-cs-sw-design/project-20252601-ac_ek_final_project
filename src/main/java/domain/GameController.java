@@ -9,6 +9,7 @@ public class GameController {
     private final UI ui;
     private Game game;
 
+    @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
     public GameController(UI ui) {
         this.ui = ui;
     }

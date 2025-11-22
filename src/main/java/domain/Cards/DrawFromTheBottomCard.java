@@ -25,7 +25,7 @@ public class DrawFromTheBottomCard extends Card {
         } else {
             game.addToCurrentPlayer(bottomCard);
         }
-        game.setCurrentPlayerTurn(SET_NUMBER_OF_TURNS);
+        game.setCurrentPlayerTurns(SET_NUMBER_OF_TURNS);
         game.setDeck(deck);
 
         Player currPlayer = game.getCurrentPlayer();
