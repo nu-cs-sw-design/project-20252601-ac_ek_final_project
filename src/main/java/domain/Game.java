@@ -111,6 +111,7 @@ public class Game {
         int playCardYes = 1;
         int numPlayers = getNumberOfPlayers();
 
+        ui.clearScreen();
         ui.displayFormattedMessage("player", currentPlayer.getId());
         ui.displayMessage("turnStart");
         displayMarkCards();

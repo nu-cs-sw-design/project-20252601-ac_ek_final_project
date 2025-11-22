@@ -48,4 +48,15 @@ public class UI {
         String message = MessageFormat.format(pattern, args);
         System.out.println(message);
     }
+
+    public void clearScreen() {
+        try {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } catch (Exception e) {
+            // Fallback: print multiple newlines if clearing fails
+            for (int i = 0; i < 50; i++) {
+                System.out.println();
+            }
+        }
+    }
 }
