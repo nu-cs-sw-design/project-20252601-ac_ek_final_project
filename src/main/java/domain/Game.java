@@ -147,12 +147,12 @@ public class Game {
                                     if (wantsToPlay == 1) {
                                         Card nopeCard = player.chooseCard(nopeIndex);
                                         player.removeCard(nopeIndex);
-                                        game.setPlayer(player);
+                                        setPlayer(player);
                                         nopeCard.playCard(this, ui);
                                         ui.displayMessage("playedNope");
                                         
                                         currentPlayer.removeCard(cardIndex);
-                                        game.setPlayer(currentPlayer);
+                                        setPlayer(currentPlayer);
                                         
                                         actionCanceled = true;
                                         validCardPlayed = true;
