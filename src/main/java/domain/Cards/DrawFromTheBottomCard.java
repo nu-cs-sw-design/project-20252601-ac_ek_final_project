@@ -7,7 +7,6 @@ import ui.UI;
 
 public class DrawFromTheBottomCard extends Card {
     private static final int[] COUNTS = {6, 8, 10};
-    private static final int SET_NUMBER_OF_TURNS = 0;
 
     @Override
     public String getName() {
@@ -25,10 +24,14 @@ public class DrawFromTheBottomCard extends Card {
         } else {
             game.addToCurrentPlayer(bottomCard);
         }
-        game.setCurrentPlayerTurns(SET_NUMBER_OF_TURNS);
+        
+        Player currPlayer = game.getCurrentPlayer();
+        int currentTurns = currPlayer.getNumberOfTurns();
+        if (currentTurns > 0) {
+            game.setCurrentPlayerTurns(currentTurns - 1);
+        }
         game.setDeck(deck);
 
-        Player currPlayer = game.getCurrentPlayer();
         int cardIndex = currPlayer.hasCard(this.getName());
         game.removeCurrentPlayerCard(cardIndex);
     }
