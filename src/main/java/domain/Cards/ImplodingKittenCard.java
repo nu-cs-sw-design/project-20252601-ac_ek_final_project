@@ -41,7 +41,13 @@ public class ImplodingKittenCard extends Card {
         }
         else {
             ui.displayMessage("implodingKittenFaceUp");
-            game.deletePlayer(game.getCurrentPlayer().getId());
+            int currentPlayerID = game.getCurrentPlayer().getId();
+            game.deletePlayer(currentPlayerID);
+            ui.displayMessage("playerEliminated");
+            int numPlayers = game.getPlayers().size();
+            for (int i = 0; i < numPlayers - 1; i++) {
+                game.nextPlayer();
+            }
         }
     }
 }
