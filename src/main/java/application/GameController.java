@@ -1,8 +1,13 @@
 package application;
 
+import domain.model.ExpansionPack;
 import domain.model.Game;
+import domain.model.GameConfiguration;
 import domain.model.Player;
 import ui.UI;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class GameController {
     private static final int ENGLISH = 0;
@@ -27,11 +32,10 @@ public class GameController {
             ui.changeLanguage("fr", "Fr");
         }
 
-
-        int numberOfPlayers = promptNumberOfPlayers();
-
+        GameConfiguration config = getGameConfiguration();
+        
         if (this.game == null) {
-            this.game = new Game(numberOfPlayers, ui);
+            this.game = new Game(config.getPlayerCount(), ui, new domain.factory.DeckFactory(), config.getExpansionPacks());
         }
 
         while(!game.isGameOver()) {
@@ -45,19 +49,41 @@ public class GameController {
         }
     }
 
-    private int promptNumberOfPlayers() {
-        int numberOfPlayers;
-        while (true) {
-            numberOfPlayers = ui.promptPlayer("enterNumPlayers");
-            if (numberOfPlayers < 2 || numberOfPlayers > 10) {
-                ui.displayMessage("invalidNumPlayers");
-            } else {
-                return numberOfPlayers;
+    private GameConfiguration getGameConfiguration() {
+        GameConfiguration config = null;
+        
+        while (config == null) {
+            try {
+                Set<Integer> expansionNumbers = ui.promptExpansionPackNumbers();
+                Set<ExpansionPack> expansionPacks = new HashSet<>();
+                
+                for (int number : expansionNumbers) {
+                    if (!GameConfiguration.isValidExpansionNumber(number)) {
+                        throw new IllegalArgumentException("invalidExpansionSelection");
+                    }
+                    expansionPacks.add(GameConfiguration.getExpansionPack(number));
+                }
+                
+                if (!expansionPacks.isEmpty()) {
+                    StringBuilder expansionNames = new StringBuilder();
+                    for (ExpansionPack pack : expansionPacks) {
+                        if (expansionNames.length() > 0) {
+                            expansionNames.append(", ");
+                        }
+                        expansionNames.append(pack.getDisplayName());
+                    }
+                    ui.displayFormattedMessage("selectedExpansions", expansionNames.toString());
+                }
+                
+                int playerCount = ui.promptPlayer("enterNumPlayers");
+                
+                config = new GameConfiguration(playerCount, expansionPacks);
+                
+            } catch (IllegalArgumentException e) {
+                ui.displayMessage(e.getMessage());
             }
         }
-    }
-
-    public void setGame(Game game) {
-        this.game = new Game(game);
+        
+        return config;
     }
 }
