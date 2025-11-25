@@ -1,81 +1,86 @@
 package domain.model.cards.special;
 
 import domain.model.Deck;
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 public class ExplodingKittenCard extends Card {
     private static final int ADD_TO_DECK = 0;
     private static final int NOT_FOUND = -1;
+
+    public ExplodingKittenCard() {
+        super(new ExplodingKittenCardEffect());
+    }
 
     @Override
     public String getName() {
         return "Exploding Kitten";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("explodingKitten");
-        Player currentPlayer = game.getCurrentPlayer();
+    private static class ExplodingKittenCardEffect implements CardEffect {
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("explodingKitten");
+            Player currentPlayer = context.getCurrentPlayer();
 
-        if (currentPlayer.hasCard("Defuse") != NOT_FOUND && currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND) {
-            int choice = ui.promptPlayer("keepOrAddExploding");
+            if (currentPlayer.hasCard("Defuse") != NOT_FOUND && currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND) {
+                int choice = context.promptPlayer("keepOrAddExploding");
 
-            if (choice == ADD_TO_DECK) {
+                if (choice == ADD_TO_DECK) {
+                    int defuseIndex = currentPlayer.hasCard("Defuse");
+                    context.removeCurrentPlayerCard(defuseIndex);
+                    insertIntoDeck(context);
+                    context.displayMessage("defuseCard");
+                }
+                else {
+                    context.addToCurrentPlayer(new ExplodingKittenCard());
+                    context.displayMessage("addExplodingKitten");
+                }
+                return;
+            }
+
+
+            if (currentPlayer.hasCard("Defuse") != NOT_FOUND) {
                 int defuseIndex = currentPlayer.hasCard("Defuse");
-                game.removeCurrentPlayerCard(defuseIndex);
-                insertIntoDeck(game, ui);
-                ui.displayMessage("defuseCard");
+                context.removeCurrentPlayerCard(defuseIndex);
+                context.displayMessage("defuseCard");
+                insertIntoDeck(context);
+                return;
             }
-            else {
-                game.addToCurrentPlayer(new ExplodingKittenCard());
-                ui.displayMessage("addExplodingKitten");
+
+            if (currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND) {
+                context.addToCurrentPlayer(new ExplodingKittenCard());
+                context.displayMessage("addExplodingKitten");
+                return;
             }
-            return;
+
+            int currentPlayerID = currentPlayer.getId();
+            context.deletePlayer(currentPlayerID);
+            context.displayMessage("playerEliminated");
+            int numPlayers = context.getPlayers().size();
+            for (int i = 0; i < numPlayers - 1; i++) {
+                context.nextPlayer();
+            }
         }
 
-
-        if (currentPlayer.hasCard("Defuse") != NOT_FOUND) {
-            int defuseIndex = currentPlayer.hasCard("Defuse");
-            game.removeCurrentPlayerCard(defuseIndex);
-            ui.displayMessage("defuseCard");
-            insertIntoDeck(game, ui);
-            return;
-        }
-
-        if (currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND) {
-            game.addToCurrentPlayer(new ExplodingKittenCard());
-            ui.displayMessage("addExplodingKitten");
-            return;
-        }
-
-        int currentPlayerID = currentPlayer.getId();
-        game.deletePlayer(currentPlayerID);
-        ui.displayMessage("playerEliminated");
-        int numPlayers = game.getPlayers().size();
-        for (int i = 0; i < numPlayers - 1; i++) {
-            game.nextPlayer();
-        }
-    }
-
-
-    private void insertIntoDeck(Game game, UI ui) {
-        Deck deck = game.getDeck();
-        int insertIndex;
-        boolean validIndex = false;
-        
-        while (!validIndex) {
-            insertIndex = ui.promptPlayer("whereToInsert");
-            try {
-                deck.insertCardAtIndex(new ExplodingKittenCard(), insertIndex);
-                game.setDeck(deck);
-                ui.displayMessage("insertedCard");
-                validIndex = true;
-            } catch (IndexOutOfBoundsException e) {
-                ui.displayMessage("indexOutOfBounds");
-                ui.displayMessage("tryAgain");
+        private void insertIntoDeck(GameContext context) {
+            Deck deck = context.getDeck();
+            int insertIndex;
+            boolean validIndex = false;
+            
+            while (!validIndex) {
+                insertIndex = context.promptPlayer("whereToInsert");
+                try {
+                    deck.insertCardAtIndex(new ExplodingKittenCard(), insertIndex);
+                    context.setDeck(deck);
+                    context.displayMessage("insertedCard");
+                    validIndex = true;
+                } catch (IndexOutOfBoundsException e) {
+                    context.displayMessage("indexOutOfBounds");
+                    context.displayMessage("tryAgain");
+                }
             }
         }
     }

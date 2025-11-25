@@ -1,9 +1,9 @@
 package domain.model.cards.special;
 
 import domain.model.Deck;
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 
 public class ImplodingKittenCard extends Card {
@@ -21,7 +21,13 @@ public class ImplodingKittenCard extends Card {
     }
 
     public ImplodingKittenCard(DrawnBefore drawnBefore) {
+        super(null);
         this.drawnBefore = drawnBefore.value;
+    }
+
+    @Override
+    public CardEffect getEffect() {
+        return new ImplodingKittenCardEffect(this);
     }
 
     @Override
@@ -29,35 +35,43 @@ public class ImplodingKittenCard extends Card {
         return "Imploding Kitten";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        if (drawnBefore == DrawnBefore.NOT_DRAWN.value) {
-            ui.displayMessage("implodingKittenFaceDown");
+    private static class ImplodingKittenCardEffect implements CardEffect {
+        private final ImplodingKittenCard card;
 
-            Deck deck = game.getDeck();
-            ui.displayFormattedMessage("ImplodingKittenIndexHelp", deck.numberOfCards());
-            boolean validIndex = false;
-            
-            while (!validIndex) {
-                int insertImplodingKittenAtIndex = ui.promptPlayer("whereToInsert");
-                try {
-                    deck.insertCardAtIndex(new ImplodingKittenCard(ImplodingKittenCard.DrawnBefore.DRAWN), insertImplodingKittenAtIndex);
-                    game.setDeck(deck);
-                    validIndex = true;
-                } catch (IndexOutOfBoundsException e) {
-                    ui.displayMessage("indexOutOfBounds");
-                    ui.displayMessage("tryAgain");
+        ImplodingKittenCardEffect(ImplodingKittenCard card) {
+            this.card = card;
+        }
+
+        @Override
+        public void execute(GameContext context) {
+            if (card.drawnBefore == DrawnBefore.NOT_DRAWN.value) {
+                context.displayMessage("implodingKittenFaceDown");
+
+                Deck deck = context.getDeck();
+                context.displayFormattedMessage("ImplodingKittenIndexHelp", deck.numberOfCards());
+                boolean validIndex = false;
+                
+                while (!validIndex) {
+                    int insertImplodingKittenAtIndex = context.promptPlayer("whereToInsert");
+                    try {
+                        deck.insertCardAtIndex(new ImplodingKittenCard(ImplodingKittenCard.DrawnBefore.DRAWN), insertImplodingKittenAtIndex);
+                        context.setDeck(deck);
+                        validIndex = true;
+                    } catch (IndexOutOfBoundsException e) {
+                        context.displayMessage("indexOutOfBounds");
+                        context.displayMessage("tryAgain");
+                    }
                 }
             }
-        }
-        else {
-            ui.displayMessage("implodingKittenFaceUp");
-            int currentPlayerID = game.getCurrentPlayer().getId();
-            game.deletePlayer(currentPlayerID);
-            ui.displayMessage("playerEliminated");
-            int numPlayers = game.getPlayers().size();
-            for (int i = 0; i < numPlayers - 1; i++) {
-                game.nextPlayer();
+            else {
+                context.displayMessage("implodingKittenFaceUp");
+                int currentPlayerID = context.getCurrentPlayer().getId();
+                context.deletePlayer(currentPlayerID);
+                context.displayMessage("playerEliminated");
+                int numPlayers = context.getPlayers().size();
+                for (int i = 0; i < numPlayers - 1; i++) {
+                    context.nextPlayer();
+                }
             }
         }
     }
