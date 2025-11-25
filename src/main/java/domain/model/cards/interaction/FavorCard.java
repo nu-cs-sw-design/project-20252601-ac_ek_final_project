@@ -1,9 +1,9 @@
 package domain.model.cards.interaction;
 
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 import java.util.InputMismatchException;
 import java.util.Objects;
@@ -11,40 +11,46 @@ import java.util.Objects;
 public class FavorCard extends Card{
     private static final int[] COUNTS = {2, 4, 6};
 
+    public FavorCard() {
+        super(new FavorCardEffect());
+    }
+
     @Override
     public String getName() {
         return "Favor";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("favorCard");
-
-        Player curentPlayer = game.getCurrentPlayer();
-        int chosenPlayerID = ui.promptPlayer("targetPlayerId");
-        if (chosenPlayerID == curentPlayer.getId()) {
-            throw new InputMismatchException("chosenSelfError");
-        }
-
-        Player chosenPlayer = game.getPlayer(chosenPlayerID);
-        int chosenCardIndex = ui.promptPlayer("chosenPlayerCardIndex");
-        Card choosenCard = chosenPlayer.chooseCard(chosenCardIndex);
-        chosenPlayer.removeCard(chosenCardIndex);
-        game.setPlayer(chosenPlayer);
-
-        if (!Objects.equals(choosenCard.getName(), "Exploding Kitten")) {
-            curentPlayer.addCard(choosenCard);
-            game.setPlayer(curentPlayer);
-            ui.displayMessage("addCard");
-        } else {
-            choosenCard.playCard(game, ui);
-        }
-
-        int cardIndex = curentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
-    }
-
     public static int[] getCounts() {
         return COUNTS.clone();
+    }
+
+    private static class FavorCardEffect implements CardEffect {
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("favorCard");
+
+            Player curentPlayer = context.getCurrentPlayer();
+            int chosenPlayerID = context.promptPlayer("targetPlayerId");
+            if (chosenPlayerID == curentPlayer.getId()) {
+                throw new InputMismatchException("chosenSelfError");
+            }
+
+            Player chosenPlayer = context.getPlayer(chosenPlayerID);
+            int chosenCardIndex = context.promptPlayer("chosenPlayerCardIndex");
+            Card choosenCard = chosenPlayer.chooseCard(chosenCardIndex);
+            chosenPlayer.removeCard(chosenCardIndex);
+            context.setPlayer(chosenPlayer);
+
+            if (!Objects.equals(choosenCard.getName(), "Exploding Kitten")) {
+                curentPlayer.addCard(choosenCard);
+                context.setPlayer(curentPlayer);
+                context.displayMessage("addCard");
+            } else {
+                choosenCard.getEffect().execute(context);
+            }
+
+            int cardIndex = curentPlayer.hasCard("Favor");
+            context.removeCurrentPlayerCard(cardIndex);
+        }
     }
 }

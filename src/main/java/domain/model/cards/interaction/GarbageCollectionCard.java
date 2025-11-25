@@ -1,40 +1,46 @@
 package domain.model.cards.interaction;
 
 import domain.model.Deck;
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 import java.util.List;
 
 public class GarbageCollectionCard extends Card {
+    public GarbageCollectionCard() {
+        super(new GarbageCollectionCardEffect());
+    }
+
     @Override
     public String getName() {
         return "Garbage Collection";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("garbageCollectionCard");
+    private static class GarbageCollectionCardEffect implements CardEffect {
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("garbageCollectionCard");
 
-        Player currentPlayer = game.getCurrentPlayer();
-        int cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
+            Player currentPlayer = context.getCurrentPlayer();
+            int cardIndex = currentPlayer.hasCard("Garbage Collection");
+            context.removeCurrentPlayerCard(cardIndex);
 
-        Deck deck = game.getDeck();
-        List<Player> players = game.getPlayers();
+            Deck deck = context.getDeck();
+            List<Player> players = context.getPlayers();
 
-        for (Player player : players) {
-            ui.displayFormattedMessage("player", player.getId());
-            int index = ui.promptPlayer("discard");
-            Card card = player.chooseCard(index);
-            player.removeCard(index);
-            deck.addCard(card);
-            game.setPlayer(player);
+            for (Player player : players) {
+                context.displayFormattedMessage("player", player.getId());
+                int index = context.promptPlayer("discard");
+                Card card = player.chooseCard(index);
+                player.removeCard(index);
+                deck.addCard(card);
+                context.setPlayer(player);
+            }
+
+            deck.shuffle();
+            context.setDeck(deck);
         }
-
-        deck.shuffle();
-        game.setDeck(deck);
     }
 }

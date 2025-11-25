@@ -1,9 +1,9 @@
 package domain.model.cards.interaction;
 
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 import java.util.InputMismatchException;
 
@@ -33,7 +33,13 @@ public class CatCard extends Card{
     }
 
     public CatCard(CatCard.CatCardType catCardType) {
+        super(null);  // Will be set via getEffect()
         this.catCardType = catCardType.value;
+    }
+
+    @Override
+    public CardEffect getEffect() {
+        return new CatCardEffect(this);
     }
 
     @Override
@@ -41,38 +47,50 @@ public class CatCard extends Card{
         return CatCard.CatCardType.values()[catCardType].name;
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("catCard");
-
-        Player currentPlayer = game.getCurrentPlayer();
-        String cardName = this.getName();
-        boolean hasTwo = currentPlayer.hasTwoOf(cardName);
-        if (!hasTwo) {
-            throw new UnsupportedOperationException("needTwo");
-        }
-
-        int chosenPlayerIndex = ui.promptPlayer("playerID");
-        Player chosenPlayer = game.getPlayer(chosenPlayerIndex);
-        if (chosenPlayerIndex == currentPlayer.getId()) {
-            throw new InputMismatchException("chosenSelfError");
-        }
-
-        int chosenCardIndex = ui.promptPlayer("takeCard");
-        Card chosenCard = chosenPlayer.chooseCard(chosenCardIndex);
-        chosenPlayer.removeCard(chosenCardIndex);
-        currentPlayer.addCard(chosenCard);
-        game.setPlayer(chosenPlayer);
-        game.setPlayer(currentPlayer);
-
-        int cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
-        currentPlayer.removeCard(cardIndex);
-        cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
-    }
-
     public static int[] getCounts() {
         return COUNTS.clone();
+    }
+
+    private static class CatCardEffect implements CardEffect {
+        private final CatCard card;
+
+        CatCardEffect(CatCard card) {
+            this.card = card;
+        }
+
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("catCard");
+
+            Player currentPlayer = context.getCurrentPlayer();
+            String cardName = card.getName();
+            boolean hasTwo = currentPlayer.hasTwoOf(cardName);
+            if (!hasTwo) {
+                throw new UnsupportedOperationException("needTwo");
+            }
+
+            int chosenPlayerIndex = context.promptPlayer("playerID");
+            if (chosenPlayerIndex <= 0 || chosenPlayerIndex > context.getPlayers().size()) {
+                throw new UnsupportedOperationException("invalidPlayerID");
+            }
+            if (currentPlayer.getId() == chosenPlayerIndex) {
+                throw new InputMismatchException("chosenSelfError");
+            }
+
+            Player chosenPlayer = context.getPlayer(chosenPlayerIndex);
+            int chosenCardIndex = context.promptPlayer("takeCard");
+            Card chosenCard = chosenPlayer.chooseCard(chosenCardIndex);
+            chosenPlayer.removeCard(chosenCardIndex);
+            currentPlayer.addCard(chosenCard);
+
+            int cardIndex = currentPlayer.hasCard(card.getName());
+            context.removeCurrentPlayerCard(cardIndex);
+            currentPlayer.removeCard(cardIndex);
+            cardIndex = currentPlayer.hasCard(card.getName());
+            context.removeCurrentPlayerCard(cardIndex);
+
+            context.setPlayer(chosenPlayer);
+            context.setPlayer(currentPlayer);
+        }
     }
 }
