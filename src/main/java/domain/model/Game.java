@@ -1,11 +1,10 @@
 package domain.model;
 
+import domain.factory.DeckFactory;
 import domain.model.cards.*;
-import domain.model.cards.attack.*;
-import domain.model.cards.draw.*;
-import domain.model.cards.interaction.*;
-import domain.model.cards.manipulation.*;
-import domain.model.cards.special.*;
+import domain.model.cards.special.DefuseCard;
+import domain.model.cards.special.ExplodingKittenCard;
+import domain.model.cards.special.ImplodingKittenCard;
 import ui.UI;
 
 import java.util.*;
@@ -14,47 +13,41 @@ public class Game {
     private final int numberOfPlayers;
     private final List<Player> players;
     private final UI ui;
+    private final DeckFactory deckFactory;
+    private final Set<ExpansionPack> expansionPacks;
 
     private Deck deck;
     private Player currentPlayer;
     private Boolean isGameOver = false;
 
-
-    int INITIAL_CARDS_PER_PLAYER = 8;
+    private static final int INITIAL_CARDS_BASE_GAME = 4;
+    private static final int INITIAL_CARDS_WITH_EXPANSIONS = 8;
     int MINIMUM_PLAYERS = 1;
     int CURRENT_PLAYER_INDEX = 0;
 
-    public Game(int numberOfPlayers) {
-        this(numberOfPlayers, new UI());
-    }
-
-    public Game(Game game) {
-        this.numberOfPlayers = 0;
-        this.players = null;
-        this.deck = null;
-        this.currentPlayer = null;
-        this.ui = null;
-        this.isGameOver = game.isGameOver();
-    }
-
     @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
-    public Game(int numberOfPlayers, UI ui) {
+    public Game(int numberOfPlayers, UI ui, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
         this.players = new ArrayList<>(numberOfPlayers);
         this.numberOfPlayers = numberOfPlayers;
         this.ui = ui;
+        this.deckFactory = deckFactory;
+        this.expansionPacks = new HashSet<>(expansionPacks);
 
-        Deck localDeck = new Deck();
-        int countToAdd = computeCountToAdd(this.numberOfPlayers);
-        initializeDeck(localDeck, countToAdd);
+        int initialCardsPerPlayer = expansionPacks.isEmpty() ? INITIAL_CARDS_BASE_GAME : INITIAL_CARDS_WITH_EXPANSIONS;
+
+        Deck localDeck = deckFactory.createDeck(numberOfPlayers, this.expansionPacks);
         localDeck.shuffle();
         this.deck = localDeck;
 
+        boolean hasPartyPack = expansionPacks.contains(ExpansionPack.PARTY_PACK);
+        int totalDefuseCards = deckFactory.getDefuseCardCount(numberOfPlayers, hasPartyPack);
+
         for (int i = 0; i < numberOfPlayers; i++) {
-            Player newPlayer = new Player(i + 1, new ArrayList<Card>(8));
+            Player newPlayer = new Player(i + 1, new ArrayList<Card>(initialCardsPerPlayer));
 
             newPlayer.addCard(new DefuseCard());
 
-            for (int j = 0; j < INITIAL_CARDS_PER_PLAYER - 1; j++) {
+            for (int j = 0; j < initialCardsPerPlayer - 1; j++) {
                 newPlayer.addCard(deck.drawTopCard());
             }
 
@@ -65,52 +58,21 @@ public class Game {
             }
         }
 
-        addToCards(localDeck, new ExplodingKittenCard(), numberOfPlayers - 1);
-        addToCards(localDeck, new ImplodingKittenCard(ImplodingKittenCard.DrawnBefore.NOT_DRAWN), 1);
+        int remainingDefuseCards = totalDefuseCards - numberOfPlayers;
+        for (int i = 0; i < remainingDefuseCards; i++) {
+            localDeck.addCard(new DefuseCard());
+        }
+
+        boolean hasStreakingKittens = expansionPacks.contains(ExpansionPack.STREAKING_KITTENS);
+        int explodingKittenCount = deckFactory.getExplodingKittenCount(numberOfPlayers, hasStreakingKittens);
+        deckFactory.addExplodingKittens(localDeck, explodingKittenCount);
+
+        if (expansionPacks.contains(ExpansionPack.IMPLODING_KITTENS)) {
+            deckFactory.addImplodingKitten(localDeck);
+        }
+
         localDeck.shuffle();
         this.deck = localDeck;
-    }
-
-    private void initializeDeck(Deck localDeck, int countToAdd) {
-        for (CatCard.CatCardType catCard : CatCard.CatCardType.values()) {
-            addToCards(localDeck, new CatCard(catCard), CatCard.getCounts()[countToAdd]);
-        }
-        addToCards(localDeck, new FeralCatCard(), FeralCatCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new NopeCard(), NopeCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new AttackCard(), AttackCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new TargetedAttackCard(), TargetedAttackCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new ShuffleCard(), ShuffleCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new FavorCard(), FavorCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new DrawFromTheBottomCard(), DrawFromTheBottomCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new SkipCard(), SkipCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new SeeTheFutureCard(SeeTheFutureCard.PeekOption.THREE), SeeTheFutureCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new SeeTheFutureCard(SeeTheFutureCard.PeekOption.FIVE), 1);
-        addToCards(localDeck, new AlterTheFutureCard(AlterTheFutureCard.PeekOption.THREE), AlterTheFutureCard.getCounts()[countToAdd]);
-        addToCards(localDeck, new AlterTheFutureCard(AlterTheFutureCard.PeekOption.FIVE), 1);
-        addToCards(localDeck, new StreakingKittenCard(), 1);
-        addToCards(localDeck, new SuperSkipCard(), 1);
-        addToCards(localDeck, new CatomicBombCard(), 1);
-        addToCards(localDeck, new GarbageCollectionCard(), 1);
-        addToCards(localDeck, new CurseOfTheCatButtCard(), 2);
-        addToCards(localDeck, new SwapTopAndBottomCard(), 3);
-        addToCards(localDeck, new MarkCard(), 3);
-        addToCards(localDeck, new ReverseCard(), 4);
-    }
-
-    private void addToCards(Deck localDeck, Card typeOfCard, int count) {
-        for (int i = 0; i < count; i++) {
-            localDeck.addCard(typeOfCard);
-        }
-    }
-
-    private int computeCountToAdd(int numberOfPlayers) {
-        if (numberOfPlayers <= 3) {
-            return 0;
-        } else if (numberOfPlayers <= 7) {
-            return 1;
-        } else {
-            return 2;
-        }
     }
 
     public void takeTurn() {
