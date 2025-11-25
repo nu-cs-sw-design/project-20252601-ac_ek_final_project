@@ -1,9 +1,7 @@
 package ui;
 
 import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 
 public class UI {
     private Locale locale;
@@ -58,5 +56,38 @@ public class UI {
                 System.out.println();
             }
         }
+    }
+
+    public Set<Integer> promptExpansionPackNumbers() {
+        Set<Integer> selections = new HashSet<>();
+        Scanner scanner = new Scanner(System.in, "UTF-8");
+        boolean validInput = false;
+        
+        while (!validInput) {
+            try {
+                displayMessage("expansionPackPrompt");
+                String input = scanner.nextLine().trim();
+                
+                if (input.equals("0") || input.isEmpty()) {
+                    validInput = true;
+                    displayMessage("noExpansions");
+                    break;
+                }
+                
+                String[] parts = input.split(",");
+                for (String part : parts) {
+                    int choice = Integer.parseInt(part.trim());
+                    selections.add(choice);
+                }
+                
+                validInput = true;
+                
+            } catch (NumberFormatException e) {
+                displayMessage("invalidExpansionSelection");
+                selections.clear();
+            }
+        }
+        
+        return selections;
     }
 }
