@@ -1,33 +1,39 @@
 package domain.model.cards.manipulation;
 
 import domain.model.Deck;
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 public class ShuffleCard extends Card{
     private static final int[] COUNTS = {2, 4, 6};
+
+    public ShuffleCard() {
+        super(new ShuffleCardEffect());
+    }
 
     @Override
     public String getName() {
         return "Shuffle";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("shuffleCard");
-
-        Deck deck = game.getDeck();
-        deck.shuffle();
-        game.setDeck(deck);
-
-        Player currentPlayer = game.getCurrentPlayer();
-        int cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
-    }
-
     public static int[] getCounts() {
         return COUNTS.clone();
+    }
+
+    private static class ShuffleCardEffect implements CardEffect {
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("shuffleCard");
+
+            Deck deck = context.getDeck();
+            deck.shuffle();
+            context.setDeck(deck);
+
+            Player currentPlayer = context.getCurrentPlayer();
+            int cardIndex = currentPlayer.hasCard("Shuffle");
+            context.removeCurrentPlayerCard(cardIndex);
+        }
     }
 }

@@ -1,10 +1,10 @@
 package domain.model.cards.manipulation;
 
 import domain.model.Deck;
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 import java.util.List;
 
@@ -25,7 +25,13 @@ public class SeeTheFutureCard extends Card {
     }
 
     public SeeTheFutureCard(PeekOption peekOption) {
+        super(null);  // Will be set in constructor body
         this.peekNumCards = peekOption.value;
+    }
+
+    @Override
+    public CardEffect getEffect() {
+        return new SeeTheFutureCardEffect(this);
     }
 
     @Override
@@ -33,26 +39,13 @@ public class SeeTheFutureCard extends Card {
         return "See The Future";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("seeTheFutureCard");
-
-        playCard(game, peekNumCards);
-        displayCards(ui);
-
-        Player currentPlayer = game.getCurrentPlayer();
-        int cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
+    private void setPeekedCards(List<Card> cards) {
+        this.peekedCards = cards;
     }
 
-    private void playCard(Game game, int numCardsToSee) {
-        Deck deck = game.getDeck();
-        this.peekedCards = deck.peekTopDeck(numCardsToSee);
-    }
-
-    private void displayCards(UI ui) {
+    private void displayCards(GameContext context) {
         for (int i = 0; i < peekedCards.size(); i++) {
-            ui.displayFormattedMessage("visibleCard", i, peekedCards.get(i).getName());
+            context.displayFormattedMessage("visibleCard", i, peekedCards.get(i).getName());
         }
     }
 
@@ -62,5 +55,26 @@ public class SeeTheFutureCard extends Card {
 
     public static int[] getCounts() {
         return COUNTS.clone();
+    }
+
+    private static class SeeTheFutureCardEffect implements CardEffect {
+        private final SeeTheFutureCard card;
+
+        SeeTheFutureCardEffect(SeeTheFutureCard card) {
+            this.card = card;
+        }
+
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("seeTheFutureCard");
+
+            Deck deck = context.getDeck();
+            card.setPeekedCards(deck.peekTopDeck(card.peekNumCards));
+            card.displayCards(context);
+
+            Player currentPlayer = context.getCurrentPlayer();
+            int cardIndex = currentPlayer.hasCard("See The Future");
+            context.removeCurrentPlayerCard(cardIndex);
+        }
     }
 }

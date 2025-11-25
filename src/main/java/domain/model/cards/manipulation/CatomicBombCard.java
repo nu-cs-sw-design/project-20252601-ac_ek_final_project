@@ -1,36 +1,42 @@
 package domain.model.cards.manipulation;
 
 import domain.model.Deck;
-import domain.model.Game;
+import domain.model.GameContext;
 import domain.model.Player;
 import domain.model.cards.Card;
-import ui.UI;
+import domain.model.cards.CardEffect;
 
 public class CatomicBombCard extends Card{
     private static final int SET_NUMBER_OF_TURNS = 0;
+
+    public CatomicBombCard() {
+        super(new CatomicBombCardEffect());
+    }
 
     @Override
     public String getName() {
         return "Catomic Bomb";
     }
 
-    @Override
-    public void playCard(Game game, UI ui) {
-        ui.displayMessage("catomicBombCard");
+    private static class CatomicBombCardEffect implements CardEffect {
+        @Override
+        public void execute(GameContext context) {
+            context.displayMessage("catomicBombCard");
 
-        Deck deck = game.getDeck();
-        if (deck.isEmpty()){
-            throw new UnsupportedOperationException("deckEmpty");
+            Deck deck = context.getDeck();
+            if (deck.isEmpty()){
+                throw new UnsupportedOperationException("deckEmpty");
+            }
+
+            deck.moveExplodingKittensToTop();
+            context.setDeck(deck);
+
+            Player currentPlayer = context.getCurrentPlayer();
+            int cardIndex = currentPlayer.hasCard("Catomic Bomb");
+            context.removeCurrentPlayerCard(cardIndex);
+
+            currentPlayer.setNumberOfTurns(SET_NUMBER_OF_TURNS);
+            context.setPlayer(currentPlayer);
         }
-
-        deck.moveExplodingKittensToTop();
-        game.setDeck(deck);
-
-        Player currentPlayer = game.getCurrentPlayer();
-        int cardIndex = currentPlayer.hasCard(this.getName());
-        game.removeCurrentPlayerCard(cardIndex);
-
-        currentPlayer.setNumberOfTurns(SET_NUMBER_OF_TURNS);
-        game.setPlayer(currentPlayer);
     }
 }
