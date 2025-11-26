@@ -75,7 +75,7 @@ public class Game {
         this.deck = localDeck;
     }
 
-    public void initializeTurn() {
+    private void initializeTurn() {
         ui.clearScreen();
         displayGameInfo();
         ui.displayFormattedMessage("player", currentPlayer.getId());
@@ -83,7 +83,7 @@ public class Game {
         displayMarkCards();
     }
 
-    public void chooseCard() {
+    private void chooseCard() {
         if (currentPlayer.isHandEmpty()) {
             return;
         }
@@ -97,7 +97,7 @@ public class Game {
             playCardChoice = ui.promptPlayer("playCardPrompt");
 
             if (playCardChoice == playCardYes) {
-                boolean playerEliminated = attemptToPlayCard();
+                boolean playerEliminated = playCard();
                 if (playerEliminated) {
                     return;
                 }
@@ -105,25 +105,40 @@ public class Game {
         }
     }
 
+    private boolean playCard() {
+        boolean validCardPlayed = false;
+
+        while (!validCardPlayed && !currentPlayer.isHandEmpty()) {
+            int cardIndex = ui.promptPlayer("chooseCardPrompt");
+            
+            try {
+                Card selectedCard = currentPlayer.chooseCard(cardIndex);
+                boolean actionCanceled = checkForNopeInterruption(cardIndex);
+
+                if (!actionCanceled) {
+                    boolean playerEliminated = executeCardAction(selectedCard);
+                    validCardPlayed = true;
+                    
+                    if (playerEliminated) {
+                        return true;
+                    }
+                } else {
+                    validCardPlayed = true;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                ui.displayMessage("invalidCardIndex");
+            }
+        }
+        
+        return false;
+    }
+
     public void takeTurn() {
-        int playCardYes = 1;
         int numPlayers = getNumberOfPlayers();
 
         initializeTurn();
-
+        chooseCard();
         if (!currentPlayer.isHandEmpty()) {
-            int playCardChoice = 1;
-
-            while (playCardChoice == playCardYes && currentPlayer.getNumberOfTurns() > 0 && !currentPlayer.isHandEmpty()) {
-                boolean validCardPlayed = false;
-                ui.displayMessage("currentHand");
-                displayPlayerHand(currentPlayer, currentPlayer.getHandVisibility());
-                playCardChoice = ui.promptPlayer("playCardPrompt");
-
-                if(playCardChoice != playCardYes) {
-                    break;
-                }
-
                 while (!validCardPlayed && !currentPlayer.isHandEmpty()) {
                     int cardIndex = ui.promptPlayer("chooseCardPrompt");
                     try {
@@ -177,7 +192,6 @@ public class Game {
                     }
                 }
             }
-        }
 
         while (!currentPlayer.getIsTurnOver()) {
             if (deck.isEmpty()) {
