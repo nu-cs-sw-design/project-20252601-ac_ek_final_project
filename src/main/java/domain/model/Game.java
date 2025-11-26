@@ -171,20 +171,22 @@ public class Game {
 
     private boolean checkForCounterNope(Player lastNopingPlayer) {
         for (Player player : players) {
-            int nopeIndex = player.hasCard("Nope");
-            if (nopeIndex != -1) {
-                ui.displayFormattedMessage("player", player.getId());
-                int wantsToPlay = ui.promptPlayer("chooseNope");
-                
-                if (wantsToPlay == 1) {
-                    Card counterNope = player.chooseCard(nopeIndex);
-                    player.removeCard(nopeIndex);
-                    setPlayer(player);
-                    counterNope.playCard(this, ui);
-                    ui.displayMessage("playedNope");
+            if (player.getId() != lastNopingPlayer.getId()) {
+                int nopeIndex = player.hasCard("Nope");
+                if (nopeIndex != -1) {
+                    ui.displayFormattedMessage("player", player.getId());
+                    int wantsToPlay = ui.promptPlayer("chooseNope");
                     
-                    boolean counterNopeWasNoped = checkForCounterNope(player);
-                    return !counterNopeWasNoped;
+                    if (wantsToPlay == 1) {
+                        Card counterNope = player.chooseCard(nopeIndex);
+                        player.removeCard(nopeIndex);
+                        setPlayer(player);
+                        counterNope.playCard(this, ui);
+                        ui.displayMessage("playedNope");
+                        
+                        boolean counterNopeWasNoped = checkForCounterNope(player);
+                        return !counterNopeWasNoped;
+                    }
                 }
             }
         }
