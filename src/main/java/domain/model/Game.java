@@ -238,24 +238,28 @@ public class Game {
         currentPlayer.decreaseTurnByOne();
     }
 
-    public void takeTurn() {
-        int numPlayers = getNumberOfPlayers();
-
-        initializeTurn();
-        chooseCard();
-        drawCard();
-        
+    private void endTurn() {
         if (players.size() == MINIMUM_PLAYERS) {
             setGameOver(true);
         }
-        if (getNumberOfPlayers() != numPlayers - 1) {
-            ui.displayFormattedMessage("endTurn", currentPlayer.getId());
-        }
+        
+        ui.displayFormattedMessage("endTurn", currentPlayer.getId());
+        resetPlayerState();
+        nextPlayer();
+    }
+
+    private void resetPlayerState() {
         currentPlayer.setNumberOfTurns(1);
         if (!currentPlayer.getHandVisibility()) {
             currentPlayer.setHandVisibility(true);
         }
-        nextPlayer();
+    }
+
+    public void takeTurn() {
+        initializeTurn();
+        chooseCard();
+        drawCard();
+        endTurn();
     }
 
     public void deletePlayer(int id) {
