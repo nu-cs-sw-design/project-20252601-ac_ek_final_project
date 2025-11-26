@@ -214,33 +214,37 @@ public class Game {
         ui.displayMessage("playerEliminated");
     }
 
-    public void takeTurn() {
-        int numPlayers = getNumberOfPlayers();
-
-        initializeTurn();
-        chooseCard();
-        
+    private void drawCard() {
         while (!currentPlayer.getIsTurnOver()) {
             if (deck.isEmpty()) {
                 ui.displayMessage("deckEmpty");
                 break;
             }
+            
             Card cardDrawn = deck.drawTopCard();
-            if (cardDrawn instanceof ExplodingKittenCard) {
+            
+            if (cardDrawn instanceof ExplodingKittenCard || cardDrawn instanceof ImplodingKittenCard) {
                 cardDrawn.playCard(this, ui);
                 break;
-            } else if (cardDrawn instanceof ImplodingKittenCard) {
-                cardDrawn.playCard(this, ui);
-                break;
+            } else {
+                addCardToHand(cardDrawn);
             }
-            else {
-                currentPlayer.addCard(cardDrawn);
-                ui.displayMessage("drawCard");
-                currentPlayer.decreaseTurnByOne();
-            }
-
         }
+    }
 
+    private void addCardToHand(Card card) {
+        currentPlayer.addCard(card);
+        ui.displayMessage("drawCard");
+        currentPlayer.decreaseTurnByOne();
+    }
+
+    public void takeTurn() {
+        int numPlayers = getNumberOfPlayers();
+
+        initializeTurn();
+        chooseCard();
+        drawCard();
+        
         if (players.size() == MINIMUM_PLAYERS) {
             setGameOver(true);
         }
