@@ -3,8 +3,7 @@ package domain.model;
 import domain.factory.DeckFactory;
 import domain.model.cards.*;
 import domain.model.cards.special.DefuseCard;
-import domain.model.cards.special.ExplodingKittenCard;
-import domain.model.cards.special.ImplodingKittenCard;
+import domain.service.TurnService;
 import ui.UI;
 
 import java.util.*;
@@ -75,193 +74,9 @@ public class Game {
         this.deck = localDeck;
     }
 
-    private void initializeTurn() {
-        ui.clearScreen();
-        displayGameInfo();
-        ui.displayFormattedMessage("player", currentPlayer.getId());
-        ui.displayMessage("turnStart");
-        displayMarkCards();
-    }
-
-    private void chooseCard() {
-        if (currentPlayer.isHandEmpty()) {
-            return;
-        }
-
-        int playCardYes = 1;
-        int playCardChoice = playCardYes;
-
-        while (playCardChoice == playCardYes && currentPlayer.getNumberOfTurns() > 0 && !currentPlayer.isHandEmpty()) {
-            ui.displayMessage("currentHand");
-            displayPlayerHand(currentPlayer, currentPlayer.getHandVisibility());
-            playCardChoice = ui.promptPlayer("playCardPrompt");
-
-            if (playCardChoice == playCardYes) {
-                boolean playerEliminated = playCard();
-                if (playerEliminated) {
-                    return;
-                }
-            }
-        }
-    }
-
-    private boolean playCard() {
-        boolean validCardPlayed = false;
-
-        while (!validCardPlayed && !currentPlayer.isHandEmpty()) {
-            int cardIndex = ui.promptPlayer("chooseCardPrompt");
-            
-            try {
-                Card selectedCard = currentPlayer.chooseCard(cardIndex);
-                boolean actionCanceled = checkForNopeInterruption(cardIndex);
-
-                if (!actionCanceled) {
-                    boolean playerEliminated = executeCardAction(selectedCard);
-                    validCardPlayed = true;
-                    
-                    if (playerEliminated) {
-                        return true;
-                    }
-                } else {
-                    validCardPlayed = true;
-                }
-            } catch (IndexOutOfBoundsException e) {
-                ui.displayMessage("invalidCardIndex");
-            }
-        }
-        
-        return false;
-    }
-
-    private boolean checkForNopeInterruption(int cardIndex) {
-        for (Player player : players) {
-            if (player != currentPlayer) {
-                int nopeIndex = player.hasCard("Nope");
-                if (nopeIndex != -1) {
-                    ui.displayFormattedMessage("player", player.getId());
-                    int wantsToPlay = ui.promptPlayer("chooseNope");
-                    
-                    if (wantsToPlay == 1) {
-                        boolean actionCanceled = playNopeCard(player, nopeIndex);
-                        
-                        if (actionCanceled) {
-                            currentPlayer.removeCard(cardIndex);
-                            setPlayer(currentPlayer);
-                        }
-                        
-                        return actionCanceled;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean playNopeCard(Player nopingPlayer, int nopeIndex) {
-        Card nopeCard = nopingPlayer.chooseCard(nopeIndex);
-        nopingPlayer.removeCard(nopeIndex);
-        setPlayer(nopingPlayer);
-        nopeCard.playCard(this, ui);
-        ui.displayMessage("playedNope");
-        
-        boolean nopeWasNoped = checkForCounterNope(nopingPlayer);
-        
-        return !nopeWasNoped;
-    }
-
-    private boolean checkForCounterNope(Player lastNopingPlayer) {
-        for (Player player : players) {
-            if (player.getId() != lastNopingPlayer.getId()) {
-                int nopeIndex = player.hasCard("Nope");
-                if (nopeIndex != -1) {
-                    ui.displayFormattedMessage("player", player.getId());
-                    int wantsToPlay = ui.promptPlayer("chooseNope");
-                    
-                    if (wantsToPlay == 1) {
-                        Card counterNope = player.chooseCard(nopeIndex);
-                        player.removeCard(nopeIndex);
-                        setPlayer(player);
-                        counterNope.playCard(this, ui);
-                        ui.displayMessage("playedNope");
-                        
-                        boolean counterNopeWasNoped = checkForCounterNope(player);
-                        return !counterNopeWasNoped;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean executeCardAction(Card selectedCard) {
-        try {
-            int playerCountBefore = getNumberOfPlayers();
-            selectedCard.playCard(this, ui);
-            
-            if (getNumberOfPlayers() < playerCountBefore) {
-                handlePlayerElimination();
-                return true;
-            }
-        } catch (Exception exception) {
-            ui.displayMessage(exception.getMessage());
-            ui.displayMessage("tryAgain");
-        }
-        return false;
-    }
-
-    private void handlePlayerElimination() {
-        if (players.size() == MINIMUM_PLAYERS) {
-            setGameOver(true);
-        }
-        ui.displayMessage("playerEliminated");
-    }
-
-    private void drawCard() {
-        while (!currentPlayer.getIsTurnOver()) {
-            if (deck.isEmpty()) {
-                ui.displayMessage("deckEmpty");
-                break;
-            }
-            
-            Card cardDrawn = deck.drawTopCard();
-            
-            if (cardDrawn instanceof ExplodingKittenCard || cardDrawn instanceof ImplodingKittenCard) {
-                cardDrawn.playCard(this, ui);
-                break;
-            } else {
-                addCardToHand(cardDrawn);
-            }
-        }
-    }
-
-    private void addCardToHand(Card card) {
-        currentPlayer.addCard(card);
-        ui.displayMessage("drawCard");
-        currentPlayer.decreaseTurnByOne();
-    }
-
-    private void endTurn() {
-        if (players.size() == MINIMUM_PLAYERS) {
-            setGameOver(true);
-        }
-        
-        ui.displayFormattedMessage("endTurn", currentPlayer.getId());
-        resetPlayerState();
-        nextPlayer();
-    }
-
-    private void resetPlayerState() {
-        currentPlayer.setNumberOfTurns(1);
-        if (!currentPlayer.getHandVisibility()) {
-            currentPlayer.setHandVisibility(true);
-        }
-    }
-
     public void takeTurn() {
-        initializeTurn();
-        chooseCard();
-        drawCard();
-        endTurn();
+        TurnService turnService = new TurnService(this, ui);
+        turnService.executeTurn();
     }
 
     public void deletePlayer(int id) {
@@ -388,17 +203,6 @@ public class Game {
         currentPlayer.setHand(new ArrayList<>());
     }
 
-    private void displayPlayerHand(Player player, Boolean visibility) {
-        for (int i = 0; i < player.getHand().size(); i++) {
-            if (visibility) {
-                ui.displayFormattedMessage("visibleCard", i, player.getHand().get(i).getName());
-            } else {
-                ui.displayFormattedMessage("hiddenCard", i);
-            }
-        }
-    }
-
-
     public void setCurrentPlayerHasNope(Boolean hasNope) {
         currentPlayer.setHasNope(hasNope);
     }
@@ -443,37 +247,5 @@ public class Game {
         }
 
         return visibleCardsMap;
-    }
-
-    private void displayMarkCards() {
-        Map<Integer, List<Card>> visibleCardsMap = getVisibleCards();
-
-        if (!visibleCardsMap.isEmpty()) {
-            ui.displayMessage("displayMarkedCards");
-        }
-
-        for (Map.Entry<Integer, List<Card>> entry : visibleCardsMap.entrySet()) {
-            int playerId = entry.getKey();
-            List<Card> visibleCards = entry.getValue();
-
-            ui.displayFormattedMessage("playerIdMessage", playerId);
-
-            for (Card card : visibleCards) {
-                ui.displayFormattedMessage("cardDisplay", "-", card.getName());
-            }
-        }
-    }
-
-    private void displayGameInfo() {
-        ui.displayMessage("activePlayers");
-        for (Player player : players) {
-            ui.displayFormattedMessage("playerInfo", player.getId());
-        }
-        ui.displayMessage("separator");
-        int nextPlayerIndex = 1;
-        if (players.size() > 1) {
-            ui.displayFormattedMessage("nextPlayer", players.get(nextPlayerIndex).getId());
-        }
-        ui.displayMessage("separator");
     }
 }
