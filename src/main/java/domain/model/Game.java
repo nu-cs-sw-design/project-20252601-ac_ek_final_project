@@ -133,6 +133,64 @@ public class Game {
         return false;
     }
 
+    private boolean checkForNopeInterruption(int cardIndex) {
+        for (Player player : players) {
+            if (player != currentPlayer) {
+                int nopeIndex = player.hasCard("Nope");
+                if (nopeIndex != -1) {
+                    ui.displayFormattedMessage("player", player.getId());
+                    int wantsToPlay = ui.promptPlayer("chooseNope");
+                    
+                    if (wantsToPlay == 1) {
+                        boolean actionCanceled = playNopeCard(player, nopeIndex);
+                        
+                        if (actionCanceled) {
+                            currentPlayer.removeCard(cardIndex);
+                            setPlayer(currentPlayer);
+                        }
+                        
+                        return actionCanceled;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean playNopeCard(Player nopingPlayer, int nopeIndex) {
+        Card nopeCard = nopingPlayer.chooseCard(nopeIndex);
+        nopingPlayer.removeCard(nopeIndex);
+        setPlayer(nopingPlayer);
+        nopeCard.playCard(this, ui);
+        ui.displayMessage("playedNope");
+        
+        boolean nopeWasNoped = checkForCounterNope(nopingPlayer);
+        
+        return !nopeWasNoped;
+    }
+
+    private boolean checkForCounterNope(Player lastNopingPlayer) {
+        for (Player player : players) {
+            int nopeIndex = player.hasCard("Nope");
+            if (nopeIndex != -1) {
+                ui.displayFormattedMessage("player", player.getId());
+                int wantsToPlay = ui.promptPlayer("chooseNope");
+                
+                if (wantsToPlay == 1) {
+                    Card counterNope = player.chooseCard(nopeIndex);
+                    player.removeCard(nopeIndex);
+                    setPlayer(player);
+                    counterNope.playCard(this, ui);
+                    ui.displayMessage("playedNope");
+                    
+                    boolean counterNopeWasNoped = checkForCounterNope(player);
+                    return !counterNopeWasNoped;
+                }
+            }
+        }
+        return false;
+    }
+
     public void takeTurn() {
         int numPlayers = getNumberOfPlayers();
 
