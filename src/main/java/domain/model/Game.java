@@ -83,6 +83,28 @@ public class Game {
         displayMarkCards();
     }
 
+    public void chooseCard() {
+        if (currentPlayer.isHandEmpty()) {
+            return;
+        }
+
+        int playCardYes = 1;
+        int playCardChoice = playCardYes;
+
+        while (playCardChoice == playCardYes && currentPlayer.getNumberOfTurns() > 0 && !currentPlayer.isHandEmpty()) {
+            ui.displayMessage("currentHand");
+            displayPlayerHand(currentPlayer, currentPlayer.getHandVisibility());
+            playCardChoice = ui.promptPlayer("playCardPrompt");
+
+            if (playCardChoice == playCardYes) {
+                boolean playerEliminated = attemptToPlayCard();
+                if (playerEliminated) {
+                    return;
+                }
+            }
+        }
+    }
+
     public void takeTurn() {
         int playCardYes = 1;
         int numPlayers = getNumberOfPlayers();
