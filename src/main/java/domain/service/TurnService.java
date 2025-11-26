@@ -1,6 +1,6 @@
 package domain.service;
 
-import domain.model.Card;
+import domain.model.cards.Card;
 import domain.model.Game;
 import domain.model.Player;
 import domain.model.cards.special.ExplodingKittenCard;
