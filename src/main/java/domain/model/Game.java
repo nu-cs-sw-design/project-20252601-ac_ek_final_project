@@ -75,16 +75,19 @@ public class Game {
         this.deck = localDeck;
     }
 
-    public void takeTurn() {
-        int playCardYes = 1;
-        int numPlayers = getNumberOfPlayers();
-
+    public void initializeTurn() {
         ui.clearScreen();
         displayGameInfo();
         ui.displayFormattedMessage("player", currentPlayer.getId());
         ui.displayMessage("turnStart");
         displayMarkCards();
+    }
 
+    public void takeTurn() {
+        int playCardYes = 1;
+        int numPlayers = getNumberOfPlayers();
+
+        initializeTurn();
 
         if (!currentPlayer.isHandEmpty()) {
             int playCardChoice = 1;
