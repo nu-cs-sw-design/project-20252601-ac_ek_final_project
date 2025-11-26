@@ -191,66 +191,35 @@ public class Game {
         return false;
     }
 
+    private boolean executeCardAction(Card selectedCard) {
+        try {
+            int playerCountBefore = getNumberOfPlayers();
+            selectedCard.playCard(this, ui);
+            
+            if (getNumberOfPlayers() < playerCountBefore) {
+                handlePlayerElimination();
+                return true;
+            }
+        } catch (Exception exception) {
+            ui.displayMessage(exception.getMessage());
+            ui.displayMessage("tryAgain");
+        }
+        return false;
+    }
+
+    private void handlePlayerElimination() {
+        if (players.size() == MINIMUM_PLAYERS) {
+            setGameOver(true);
+        }
+        ui.displayMessage("playerEliminated");
+    }
+
     public void takeTurn() {
         int numPlayers = getNumberOfPlayers();
 
         initializeTurn();
         chooseCard();
-        if (!currentPlayer.isHandEmpty()) {
-                while (!validCardPlayed && !currentPlayer.isHandEmpty()) {
-                    int cardIndex = ui.promptPlayer("chooseCardPrompt");
-                    try {
-                        Card selectedCard = currentPlayer.chooseCard(cardIndex);
-                        boolean actionCanceled = false;
-
-                        for (Player player : players) {
-                            if (player != currentPlayer) {
-                                int nopeIndex = player.hasCard("Nope");
-                                if (nopeIndex != -1) {
-                                    ui.displayFormattedMessage("player", player.getId());
-                                    int wantsToPlay = ui.promptPlayer("chooseNope");
-                                    if (wantsToPlay == 1) {
-                                        Card nopeCard = player.chooseCard(nopeIndex);
-                                        player.removeCard(nopeIndex);
-                                        setPlayer(player);
-                                        nopeCard.playCard(this, ui);
-                                        ui.displayMessage("playedNope");
-                                        
-                                        currentPlayer.removeCard(cardIndex);
-                                        setPlayer(currentPlayer);
-                                        
-                                        actionCanceled = true;
-                                        validCardPlayed = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (!actionCanceled) {
-                            try{
-                                int playerCountBefore = getNumberOfPlayers();
-                                selectedCard.playCard(this, ui);
-                                validCardPlayed = true;
-                                
-                                if (getNumberOfPlayers() < playerCountBefore) {
-                                    if (players.size() == MINIMUM_PLAYERS) {
-                                        setGameOver(true);
-                                    }
-                                    ui.displayMessage("playerEliminated");
-                                    return;
-                                }
-                            } catch (Exception exception) {
-                                ui.displayMessage(exception.getMessage());
-                                ui.displayMessage("tryAgain");
-                            }
-                        }
-                    } catch (IndexOutOfBoundsException e) {
-                        ui.displayMessage("invalidCardIndex");
-                    }
-                }
-            }
-
+        
         while (!currentPlayer.getIsTurnOver()) {
             if (deck.isEmpty()) {
                 ui.displayMessage("deckEmpty");
