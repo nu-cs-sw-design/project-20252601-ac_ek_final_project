@@ -120,6 +120,25 @@ public class DeckFactory {
         addCards(deck, cardFactory.createImplodingKittenCard(ImplodingKittenCard.DrawnBefore.NOT_DRAWN), 1);
     }
 
+    public void addRemainingCards(Deck deck, int numberOfPlayers, Set<ExpansionPack> expansionPacks) {
+        boolean hasPartyPack = expansionPacks.contains(ExpansionPack.PARTY_PACK);
+        boolean hasStreakingKittens = expansionPacks.contains(ExpansionPack.STREAKING_KITTENS);
+        boolean hasImplodingKittens = expansionPacks.contains(ExpansionPack.IMPLODING_KITTENS);
+
+        int totalDefuseCards = getDefuseCardCount(numberOfPlayers, hasPartyPack);
+        int remainingDefuseCards = totalDefuseCards - numberOfPlayers;
+        addCards(deck, cardFactory.createDefuseCard(), remainingDefuseCards);
+
+        int explodingKittenCount = getExplodingKittenCount(numberOfPlayers, hasStreakingKittens);
+        addExplodingKittens(deck, explodingKittenCount);
+
+        if (hasImplodingKittens) {
+            addImplodingKitten(deck);
+        }
+
+        deck.shuffle();
+    }
+
     private void addCards(Deck deck, Card card, int count) {
         for (int i = 0; i < count; i++) {
             deck.addCard(card);
