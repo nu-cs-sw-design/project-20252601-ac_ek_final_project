@@ -1,6 +1,7 @@
 package domain.model;
 
 import domain.factory.DeckFactory;
+import domain.factory.PlayerFactory;
 import domain.model.cards.*;
 import domain.model.cards.special.DefuseCard;
 import domain.service.PlayerManager;
@@ -14,47 +15,34 @@ public class Game {
     private final PlayerManager playerManager;
     private final UI ui;
     private final DeckFactory deckFactory;
+    private final PlayerFactory playerFactory;
     private final Set<ExpansionPack> expansionPacks;
 
     private Deck deck;
     private Boolean isGameOver = false;
 
-    private static final int INITIAL_CARDS_BASE_GAME = 4;
-    private static final int INITIAL_CARDS_WITH_EXPANSIONS = 8;
     int MINIMUM_PLAYERS = 1;
     int CURRENT_PLAYER_INDEX = 0;
 
     @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
     public Game(int numberOfPlayers, UI ui, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
-        List<Player> players = new ArrayList<>(numberOfPlayers);
         this.numberOfPlayers = numberOfPlayers;
         this.ui = ui;
         this.deckFactory = deckFactory;
+        this.playerFactory = new PlayerFactory();
         this.expansionPacks = new HashSet<>(expansionPacks);
-
-        int initialCardsPerPlayer = expansionPacks.isEmpty() ? INITIAL_CARDS_BASE_GAME : INITIAL_CARDS_WITH_EXPANSIONS;
 
         Deck localDeck = deckFactory.createDeck(numberOfPlayers, this.expansionPacks);
         localDeck.shuffle();
         this.deck = localDeck;
 
-        boolean hasPartyPack = expansionPacks.contains(ExpansionPack.PARTY_PACK);
-        int totalDefuseCards = deckFactory.getDefuseCardCount(numberOfPlayers, hasPartyPack);
-
-        for (int i = 0; i < numberOfPlayers; i++) {
-            Player newPlayer = new Player(i + 1, new ArrayList<Card>(initialCardsPerPlayer));
-
-            newPlayer.addCard(new DefuseCard());
-
-            for (int j = 0; j < initialCardsPerPlayer - 1; j++) {
-                newPlayer.addCard(deck.drawTopCard());
-            }
-
-            players.add(newPlayer);
-        }
+        int initialCardsPerPlayer = playerFactory.getInitialCardsPerPlayer(!expansionPacks.isEmpty());
+        List<Player> players = playerFactory.createPlayers(numberOfPlayers, deck, initialCardsPerPlayer);
 
         this.playerManager = new PlayerManager(players);
 
+        boolean hasPartyPack = expansionPacks.contains(ExpansionPack.PARTY_PACK);
+        int totalDefuseCards = deckFactory.getDefuseCardCount(numberOfPlayers, hasPartyPack);
         int remainingDefuseCards = totalDefuseCards - numberOfPlayers;
         for (int i = 0; i < remainingDefuseCards; i++) {
             localDeck.addCard(new DefuseCard());
