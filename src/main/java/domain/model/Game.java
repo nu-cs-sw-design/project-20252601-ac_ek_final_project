@@ -3,7 +3,6 @@ package domain.model;
 import domain.factory.DeckFactory;
 import domain.factory.PlayerFactory;
 import domain.model.cards.*;
-import domain.model.cards.special.DefuseCard;
 import domain.service.PlayerManager;
 import domain.service.TurnService;
 import ui.UI;
@@ -34,29 +33,13 @@ public class Game {
 
         Deck localDeck = deckFactory.createDeck(numberOfPlayers, this.expansionPacks);
         localDeck.shuffle();
-        this.deck = localDeck;
 
         int initialCardsPerPlayer = playerFactory.getInitialCardsPerPlayer(!expansionPacks.isEmpty());
-        List<Player> players = playerFactory.createPlayers(numberOfPlayers, deck, initialCardsPerPlayer);
+        List<Player> players = playerFactory.createPlayers(numberOfPlayers, localDeck, initialCardsPerPlayer);
 
         this.playerManager = new PlayerManager(players);
 
-        boolean hasPartyPack = expansionPacks.contains(ExpansionPack.PARTY_PACK);
-        int totalDefuseCards = deckFactory.getDefuseCardCount(numberOfPlayers, hasPartyPack);
-        int remainingDefuseCards = totalDefuseCards - numberOfPlayers;
-        for (int i = 0; i < remainingDefuseCards; i++) {
-            localDeck.addCard(new DefuseCard());
-        }
-
-        boolean hasStreakingKittens = expansionPacks.contains(ExpansionPack.STREAKING_KITTENS);
-        int explodingKittenCount = deckFactory.getExplodingKittenCount(numberOfPlayers, hasStreakingKittens);
-        deckFactory.addExplodingKittens(localDeck, explodingKittenCount);
-
-        if (expansionPacks.contains(ExpansionPack.IMPLODING_KITTENS)) {
-            deckFactory.addImplodingKitten(localDeck);
-        }
-
-        localDeck.shuffle();
+        deckFactory.addRemainingCards(localDeck, numberOfPlayers, this.expansionPacks);
         this.deck = localDeck;
     }
 
