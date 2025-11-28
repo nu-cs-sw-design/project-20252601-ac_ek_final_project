@@ -28,6 +28,7 @@ public class TurnService {
     private void initializeTurn() {
         ui.clearScreen();
         displayGameInfo();
+        ui.displayFormattedMessage("deckSize", game.getDeckSize());
         Player currentPlayer = game.getCurrentPlayer();
         ui.displayFormattedMessage("player", currentPlayer.getId());
         ui.displayMessage("turnStart");
@@ -181,12 +182,12 @@ public class TurnService {
         Player currentPlayer = game.getCurrentPlayer();
         
         while (!currentPlayer.getIsTurnOver()) {
-            if (game.getDeck().isEmpty()) {
+            if (game.isDeckEmpty()) {
                 ui.displayMessage("deckEmpty");
                 break;
             }
             
-            Card cardDrawn = game.getDeck().drawTopCard();
+            Card cardDrawn = game.drawTopCard();
             
             if (isKittenCard(cardDrawn)) {
                 cardDrawn.playCard(game, ui);
