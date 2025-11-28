@@ -4,60 +4,50 @@ import domain.model.cards.Card;
 import domain.model.cards.special.ExplodingKittenCard;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
 public class Deck {
-    private List<Card> cards;
+    private DrawPile drawPile;
 
     public Deck() {
-        this.cards = new ArrayList<>();
+        this.drawPile = new DrawPile();
     }
 
     public Deck(Deck other) {
-        this.cards = new ArrayList<>(other.cards);
+        this.drawPile = new DrawPile(other.drawPile.getAll());
     }
 
     public int numberOfCards() {
-        return cards.size();
+        return drawPile.size();
     }
 
     public void addCard(Card card) {
-        cards.add(card);
+        drawPile.add(card);
     }
 
     public Card drawTopCard() {
-        if (cards.isEmpty()) {
-            throw new UnsupportedOperationException("deckEmpty");
-        }
-        return cards.remove(0);
+        return drawPile.removeTop();
     }
 
     public Card drawBottomCard() {
-        if (cards.isEmpty()) {
-            throw new UnsupportedOperationException("deckEmpty");
-        }
-        return cards.remove(cards.size() - 1);
+        return drawPile.removeBottom();
     }
 
     public void shuffle() {
-        if (cards.isEmpty()) {
-            throw new UnsupportedOperationException("deckEmpty");
-        }
-        Collections.shuffle(cards);
+        drawPile.shuffle();
     }
 
     public List<Card> peekTopDeck(int numCardsToSee){
-        if (cards.isEmpty()) {
+        if (drawPile.isEmpty()) {
             throw new UnsupportedOperationException("deckEmpty");
         }
-        int endIndex = Math.min(numCardsToSee, cards.size());
-        return cards.subList(0, endIndex);
+        int endIndex = Math.min(numCardsToSee, drawPile.size());
+        return drawPile.subList(0, endIndex);
     }
 
     public void alterTopDeck(List<Card> topCards, List<Integer> newIndexes){
-        if (cards.isEmpty()) {
+        if (drawPile.isEmpty()) {
             throw new UnsupportedOperationException("deckEmpty");
         }
 
@@ -70,7 +60,10 @@ public class Deck {
         }
 
         int endIndex = topCards.size();
-        List<Card> reorderedCards = new ArrayList<>(Collections.nCopies(endIndex, null));
+        List<Card> reorderedCards = new ArrayList<>();
+        for (int i = 0; i < endIndex; i++) {
+            reorderedCards.add(null);
+        }
 
         for (int j = 0; j < endIndex; j++) {
             int newIndex = newIndexes.get(j);
@@ -84,19 +77,19 @@ public class Deck {
         }
 
         for (int j = 0; j < endIndex; j++) {
-            cards.set(j, reorderedCards.get(j));
+            drawPile.set(j, reorderedCards.get(j));
         }
     }
 
     public void moveExplodingKittensToTop() {
-        if (cards.isEmpty()) {
+        if (drawPile.isEmpty()) {
             throw new UnsupportedOperationException("deckEmpty");
         }
 
         List<Card> explodingKittenCards = new ArrayList<>();
         List<Card> otherCards = new ArrayList<>();
 
-        for (Card card : cards) {
+        for (Card card : drawPile.getAll()) {
             if (card instanceof ExplodingKittenCard) {
                 explodingKittenCards.add(card);
             } else {
@@ -108,43 +101,43 @@ public class Deck {
             throw new IllegalArgumentException("tooManyExplodingKitten");
         }
 
-        cards.clear();
-        cards.addAll(otherCards);
+        drawPile.clear();
+        drawPile.addAll(otherCards);
 
         if (!isEmpty()) {
             shuffle();
         }
 
-        cards.addAll(0, explodingKittenCards);
+        drawPile.addAll(0, explodingKittenCards);
     }
 
     public void swapTopAndBottom() {
-        if (cards.isEmpty()) {
+        if (drawPile.isEmpty()) {
             throw new UnsupportedOperationException("deckEmpty");
         }
-        Collections.swap(cards, 0, cards.size() - 1);
+        drawPile.swap(0, drawPile.size() - 1);
     }
 
     public void insertCardAtIndex(Card card, int indexOfNewCard) {
-        if (indexOfNewCard < 0 || indexOfNewCard > cards.size()) {
+        if (indexOfNewCard < 0 || indexOfNewCard > drawPile.size()) {
             throw new IndexOutOfBoundsException("indexOutOfBounds");
         }
-        cards.add(indexOfNewCard, card);
+        drawPile.add(indexOfNewCard, card);
     }
 
     public Deck copy() {
-        if (cards.isEmpty()) {
+        if (drawPile.isEmpty()) {
             return new Deck();
         }
 
         Deck copiedDeck = new Deck();
-        for (Card card : this.cards) {
+        for (Card card : this.drawPile.getAll()) {
             copiedDeck.addCard(card);
         }
         return copiedDeck;
     }
 
     public boolean isEmpty() {
-        return cards.isEmpty();
+        return drawPile.isEmpty();
     }
 }
