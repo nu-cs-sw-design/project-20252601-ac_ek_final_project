@@ -3,74 +3,53 @@ package domain.model;
 import domain.model.cards.Card;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class Player {
     private int id;
-    private ArrayList<Card> hand;
-    private ArrayList<Card> visibleHand;
+    private Hand hand;
     private int numberOfTurns;
     private boolean visibility = true;
     private boolean hasNope = false;
 
     public Player(int id, ArrayList<Card> hand) {
         this.id = id;
-        this.hand = new ArrayList<>(hand);
-        this.visibleHand = new ArrayList<>();
+        this.hand = new Hand(hand);
         this.numberOfTurns = 1;
     }
 
     public Player(Player player) {
         this.id = player.getId();
-        this.hand = player.getHand();
-        this.visibleHand = player.getVisibleHand();
+        this.hand = new Hand(player.hand);
         this.numberOfTurns = player.getNumberOfTurns();
         this.visibility = player.getHandVisibility();
+        this.hasNope = player.getHasNope();
     }
 
     public int addCard(Card card) {
-        hand.add(card);
+        hand.addCard(card);
         return hand.size();
     }
 
     public int addVisibleCard(Card card) {
-        visibleHand.add(card);
-        return visibleHand.size();
+        hand.addVisibleCard(card);
+        return hand.getVisibleCards().size();
     }
 
     public ArrayList<Card> getVisibleHand() {
-        return new ArrayList<>(this.visibleHand);
+        return new ArrayList<>(hand.getVisibleCards());
     }
 
     public int removeCard(int index) {
-        if(this.hand.isEmpty()) {
-            throw new UnsupportedOperationException("emptyHand");
-        }
-        if(index < 0 || index >= this.hand.size()) {
-            throw new IndexOutOfBoundsException("indexOutOfBounds");
-        }
-        Card cardToRemove = this.hand.get(index);
-        this.visibleHand.remove(cardToRemove);
-        this.hand.remove(index);
-        return this.hand.size();
+        hand.removeCard(index);
+        return hand.size();
     }
 
     public Card chooseCard(int index) {
-        if(index < 0 || index >= hand.size()) {
-            throw new IndexOutOfBoundsException("indexOutOfBounds");
-        }
-        return hand.get(index);
+        return hand.getCard(index);
     }
 
     public int hasCard(String card) {
-        for (int i = 0; i < hand.size(); i++) {
-            Card cardInHand = hand.get(i);
-            if(cardInHand.getName().equals(card)) {
-                return i;
-            }
-        }
-
-        return -1;
+        return hand.findCardIndex(card);
     }
 
     public int getId() {
@@ -81,11 +60,11 @@ public class Player {
         if (!visibility) {
             return new ArrayList<>();
         }
-        return new ArrayList<>(this.hand);
+        return new ArrayList<>(hand.getCards());
     }
 
-    public void setHand(ArrayList<Card> hand) {
-        this.hand = new ArrayList<>(hand);
+    public void setHand(ArrayList<Card> handCards) {
+        this.hand = new Hand(handCards);
     }
 
     public boolean getIsTurnOver() {
@@ -108,20 +87,11 @@ public class Player {
     }
 
     public boolean hasTwoOf(String cardName) {
-        int count = 0;
-        for (Card card : hand) {
-            if (card.getName().equals(cardName)) {
-                count++;
-            }
-        }
-        return count >= 2;
+        return hand.hasTwoOf(cardName);
     }
 
     public void shuffleHand() {
-        if (hand.isEmpty()) {
-            throw new UnsupportedOperationException("emptyHand");
-        }
-        Collections.shuffle(hand);
+        hand.shuffle();
     }
 
     public boolean getHandVisibility() {
@@ -133,7 +103,7 @@ public class Player {
     }
 
     public Boolean isHandEmpty() {
-        return this.hand.isEmpty();
+        return hand.isEmpty();
     }
 
     public int getHandCount() {
