@@ -1,46 +1,37 @@
 package domain.model;
 
 import domain.factory.DeckFactory;
-import domain.factory.PlayerFactory;
 import domain.model.cards.*;
-import domain.service.PlayerManager;
+import domain.service.DeckService;
+import domain.service.GameStateService;
+import domain.service.PlayerService;
 import domain.service.TurnService;
 import ui.UI;
 
 import java.util.*;
 
 public class Game {
-    private final int numberOfPlayers;
-    private final PlayerManager playerManager;
     private final UI ui;
-    private final DeckFactory deckFactory;
-    private final PlayerFactory playerFactory;
     private final Set<ExpansionPack> expansionPacks;
 
-    private Deck deck;
-    private Boolean isGameOver = false;
-
-    int MINIMUM_PLAYERS = 1;
-    int CURRENT_PLAYER_INDEX = 0;
+    private final PlayerService playerService;
+    private final DeckService deckService;
+    private final GameStateService gameStateService;
 
     @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
     public Game(int numberOfPlayers, UI ui, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
-        this.numberOfPlayers = numberOfPlayers;
         this.ui = ui;
-        this.deckFactory = deckFactory;
-        this.playerFactory = new PlayerFactory();
         this.expansionPacks = new HashSet<>(expansionPacks);
 
-        Deck localDeck = deckFactory.createDeck(numberOfPlayers, this.expansionPacks);
-        localDeck.shuffle();
+        this.deckService = new DeckService(deckFactory);
+        this.playerService = new PlayerService();
+        this.gameStateService = new GameStateService();
 
-        int initialCardsPerPlayer = playerFactory.getInitialCardsPerPlayer(!expansionPacks.isEmpty());
-        List<Player> players = playerFactory.createPlayers(numberOfPlayers, localDeck, initialCardsPerPlayer);
+        deckService.initializeDeck(numberOfPlayers, this.expansionPacks);
+        
+        playerService.initializePlayers(numberOfPlayers, deckService.getDeckForInitialization(), !expansionPacks.isEmpty());
 
-        this.playerManager = new PlayerManager(players);
-
-        deckFactory.addRemainingCards(localDeck, numberOfPlayers, this.expansionPacks);
-        this.deck = localDeck;
+        deckService.addRemainingCards(numberOfPlayers, this.expansionPacks);
     }
 
     public void takeTurn() {
@@ -49,52 +40,55 @@ public class Game {
     }
 
     public void deletePlayer(int id) {
-        playerManager.eliminatePlayer(id);
+        playerService.eliminatePlayer(id);
     }
 
     public Player getCurrentPlayer() {
-        return playerManager.getCurrentPlayer();
+        return playerService.getCurrentPlayer();
     }
 
     public Player getPlayer(int id) {
-        return playerManager.getPlayerById(id);
+        return playerService.getPlayer(id);
     }
 
     public void setCurrentPlayer(Player player) {
-        playerManager.setCurrentPlayer(player);
+        playerService.setCurrentPlayer(player);
     }
 
     public void setPlayerTurns(int playerIndex, int turns) {
-        try {
-            int playerId = getPlayer(playerIndex).getId();
-            playerManager.setPlayerTurns(playerId, turns);
-        } catch (Exception e) {
-            throw new IndexOutOfBoundsException("Invalid player index");
-        }
+        playerService.setPlayerTurns(playerIndex, turns);
     }
 
     public void setNextPlayerTurns(int turns) {
-        playerManager.setNextPlayerTurns(turns);
+        playerService.setNextPlayerTurns(turns);
     }
 
     public int getNextPlayerId() {
-        return playerManager.getNextPlayerId();
+        return playerService.getNextPlayerId();
     }
 
     public void setPlayer(Player player) {
-        playerManager.updatePlayer(player);
+        playerService.updatePlayer(player);
     }
 
     public void nextPlayer() {
-        playerManager.advanceToNextPlayer();
+        playerService.nextPlayer();
     }
 
     public int getNumberOfPlayers() {
-        return playerManager.getPlayerCount();
+        return playerService.getPlayerCount();
     }
 
     public Deck getDeck() {
-        return deck.copy();
+        return deckService.getDeck();
+    }
+
+    public Card drawTopCard() {
+        return deckService.drawTopCard();
+    }
+
+    public boolean isDeckEmpty() {
+        return deckService.isEmpty();
     }
 
     @SuppressWarnings("EI_EXPOSE_REP") // UI is a shared service object, not mutable state
@@ -103,82 +97,62 @@ public class Game {
     }
 
     public List<Player> getPlayers() {
-        return playerManager.getAllActivePlayers();
+        return playerService.getPlayers();
     }
 
     public void setPlayers(List<Player> newPlayers) {
-        playerManager.setAllPlayers(newPlayers);
+        playerService.setPlayers(newPlayers);
     }
 
     public void setDeck(Deck deck) {
-        this.deck = new Deck(deck);
+        deckService.setDeck(deck);
     }
 
     public void setNextPlayerTargetPlayer(Player targetPlayer) {
-        playerManager.setNextPlayer(targetPlayer);
+        playerService.setNextPlayerTargetPlayer(targetPlayer);
     }
 
     public void setCurrentPlayerTurns(int i) {
-        Player current = playerManager.getCurrentPlayer();
-        current.setNumberOfTurns(i);
-        playerManager.updatePlayer(current);
+        playerService.setCurrentPlayerTurns(i);
     }
 
     public void emptyCurrentPlayerHand() {
-        Player current = playerManager.getCurrentPlayer();
-        current.setHand(new ArrayList<>());
-        playerManager.updatePlayer(current);
+        playerService.emptyCurrentPlayerHand();
     }
 
     public void setCurrentPlayerHasNope(Boolean hasNope) {
-        Player current = playerManager.getCurrentPlayer();
-        current.setHasNope(hasNope);
-        playerManager.updatePlayer(current);
+        playerService.setCurrentPlayerHasNope(hasNope);
     }
 
     public Boolean getCurrentPlayerHasNope() {
-        return playerManager.getCurrentPlayer().getHasNope();
+        return playerService.getCurrentPlayerHasNope();
     }
 
     public Boolean isGameOver() {
-        return isGameOver;
+        return gameStateService.isGameOver();
     }
 
     public void setGameOver(Boolean isGameOver) {
-        this.isGameOver = isGameOver;
+        gameStateService.setGameOver(isGameOver);
     }
 
     public Player getWinner() {
-        if (playerManager.getPlayerCount() == MINIMUM_PLAYERS) {
-            return playerManager.getCurrentPlayer();
-        }
-        return null;
+        return gameStateService.getWinner(playerService);
     }
 
     public void removeCurrentPlayerCard(int index) {
-        Player current = playerManager.getCurrentPlayer();
-        current.removeCard(index);
-        playerManager.updatePlayer(current);
+        playerService.removeCurrentPlayerCard(index);
     }
 
     public void addToCurrentPlayer(Card cardToAdd) {
-        Player current = playerManager.getCurrentPlayer();
-        current.addCard(cardToAdd);
-        playerManager.updatePlayer(current);
+        playerService.addToCurrentPlayer(cardToAdd);
     }
 
-
     public Map<Integer, List<Card>> getVisibleCards() {
-        Map<Integer, List<Card>> visibleCardsMap = new HashMap<>();
+        return playerService.getVisibleCards();
+    }
 
-        for (Player player : playerManager.getAllActivePlayers()) {
-            int playerId = player.getId();
-            List<Card> visibleHand = player.getVisibleHand();
-            if (!visibleHand.isEmpty()) {
-                visibleCardsMap.put(playerId, visibleHand);
-            }
-        }
-
-        return visibleCardsMap;
+    public int getDeckSize() {
+        return deckService.getDeckSize();
     }
 }
