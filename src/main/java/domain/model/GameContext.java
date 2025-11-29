@@ -1,30 +1,27 @@
 package domain.model;
 
 import domain.model.cards.Card;
-import ui.UI;
 
 import java.util.List;
 import java.util.Map;
 
 public class GameContext {
     private final Game game;
-    private final UI ui;
 
-    public GameContext(Game game, UI ui) {
+    public GameContext(Game game) {
         this.game = game;
-        this.ui = ui;
     }
 
     public void displayMessage(String message) {
-        ui.displayMessage(message);
+        game.notifyMessage(message);
     }
 
     public void displayFormattedMessage(String key, Object... args) {
-        ui.displayFormattedMessage(key, args);
+        game.notifyFormattedMessage(key, args);
     }
 
     public int promptPlayer(String prompt) {
-        return ui.promptPlayer(prompt);
+        return game.getInputProvider().promptPlayer(prompt);
     }
 
     public Player getCurrentPlayer() {

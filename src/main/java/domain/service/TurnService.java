@@ -5,17 +5,14 @@ import domain.model.Game;
 import domain.model.Player;
 import domain.model.cards.special.ExplodingKittenCard;
 import domain.model.cards.special.ImplodingKittenCard;
-import ui.UI;
 
 import java.util.List;
 
 public class TurnService {
     private final Game game;
-    private final UI ui;
 
-    public TurnService(Game game, UI ui) {
+    public TurnService(Game game) {
         this.game = game;
-        this.ui = ui;
     }
 
     public void executeTurn() {
@@ -26,12 +23,12 @@ public class TurnService {
     }
 
     private void initializeTurn() {
-        ui.clearScreen();
+        game.notifyClearScreen();
         displayGameInfo();
-        ui.displayFormattedMessage("deckSize", game.getDeckSize());
+        game.notifyFormattedMessage("deckSize", game.getDeckSize());
         Player currentPlayer = game.getCurrentPlayer();
-        ui.displayFormattedMessage("player", currentPlayer.getId());
-        ui.displayMessage("turnStart");
+        game.notifyFormattedMessage("player", currentPlayer.getId());
+        game.notifyMessage("turnStart");
         displayMarkCards();
     }
 
@@ -45,9 +42,9 @@ public class TurnService {
         int playCardChoice = playCardYes;
 
         while (playCardChoice == playCardYes && currentPlayer.getNumberOfTurns() > 0 && !currentPlayer.isHandEmpty()) {
-            ui.displayMessage("currentHand");
+            game.notifyMessage("currentHand");
             displayPlayerHand(currentPlayer, currentPlayer.getHandVisibility());
-            playCardChoice = ui.promptPlayer("playCardPrompt");
+            playCardChoice = game.getInputProvider().promptPlayer("playCardPrompt");
 
             if (playCardChoice == playCardYes) {
                 boolean playerEliminated = attemptToPlayCard();
@@ -64,7 +61,7 @@ public class TurnService {
         Player currentPlayer = game.getCurrentPlayer();
 
         while (!validCardPlayed && !currentPlayer.isHandEmpty()) {
-            int cardIndex = ui.promptPlayer("chooseCardPrompt");
+            int cardIndex = game.getInputProvider().promptPlayer("chooseCardPrompt");
             
             try {
                 Card selectedCard = currentPlayer.chooseCard(cardIndex);
@@ -81,7 +78,7 @@ public class TurnService {
                     validCardPlayed = true;
                 }
             } catch (IndexOutOfBoundsException e) {
-                ui.displayMessage("invalidCardIndex");
+                game.notifyMessage("invalidCardIndex");
             }
             currentPlayer = game.getCurrentPlayer();
         }
@@ -97,8 +94,8 @@ public class TurnService {
             if (player.getId() != currentPlayer.getId()) {
                 int nopeIndex = player.hasCard("Nope");
                 if (nopeIndex != -1) {
-                    ui.displayFormattedMessage("player", player.getId());
-                    int wantsToPlay = ui.promptPlayer("chooseNope");
+                    game.notifyFormattedMessage("player", player.getId());
+                    int wantsToPlay = game.getInputProvider().promptPlayer("chooseNope");
                     
                     if (wantsToPlay == 1) {
                         boolean actionCanceled = playNopeCard(player, nopeIndex);
@@ -121,8 +118,8 @@ public class TurnService {
         Card nopeCard = nopingPlayer.chooseCard(nopeIndex);
         nopingPlayer.removeCard(nopeIndex);
         game.setPlayer(nopingPlayer);
-        nopeCard.playCard(game, ui);
-        ui.displayMessage("playedNope");
+        nopeCard.playCard(game);
+        game.notifyMessage("playedNope");
         
         boolean nopeWasNoped = checkForCounterNope(nopingPlayer);
         
@@ -136,15 +133,15 @@ public class TurnService {
             if (player.getId() != lastNopingPlayer.getId()) {
                 int nopeIndex = player.hasCard("Nope");
                 if (nopeIndex != -1) {
-                    ui.displayFormattedMessage("player", player.getId());
-                    int wantsToPlay = ui.promptPlayer("chooseNope");
+                    game.notifyFormattedMessage("player", player.getId());
+                    int wantsToPlay = game.getInputProvider().promptPlayer("chooseNope");
                     
                     if (wantsToPlay == 1) {
                         Card counterNope = player.chooseCard(nopeIndex);
                         player.removeCard(nopeIndex);
                         game.setPlayer(player);
-                        counterNope.playCard(game, ui);
-                        ui.displayMessage("playedNope");
+                        counterNope.playCard(game);
+                        game.notifyMessage("playedNope");
                         
                         boolean counterNopeWasNoped = checkForCounterNope(player);
                         return !counterNopeWasNoped;
@@ -158,15 +155,15 @@ public class TurnService {
     private boolean executeCardAction(Card selectedCard) {
         try {
             int playerCountBefore = game.getNumberOfPlayers();
-            selectedCard.playCard(game, ui);
+            selectedCard.playCard(game);
             
             if (game.getNumberOfPlayers() < playerCountBefore) {
                 handlePlayerElimination();
                 return true;
             }
         } catch (Exception exception) {
-            ui.displayMessage(exception.getMessage());
-            ui.displayMessage("tryAgain");
+            game.notifyMessage(exception.getMessage());
+            game.notifyMessage("tryAgain");
         }
         return false;
     }
@@ -175,7 +172,7 @@ public class TurnService {
         if (game.getNumberOfPlayers() == 1) {
             game.setGameOver(true);
         }
-        ui.displayMessage("playerEliminated");
+        game.notifyMessage("playerEliminated");
     }
 
     private void handleCardDrawingPhase() {
@@ -183,14 +180,14 @@ public class TurnService {
         
         while (!currentPlayer.getIsTurnOver()) {
             if (game.isDeckEmpty()) {
-                ui.displayMessage("deckEmpty");
+                game.notifyMessage("deckEmpty");
                 break;
             }
             
             Card cardDrawn = game.drawTopCard();
             
             if (isKittenCard(cardDrawn)) {
-                cardDrawn.playCard(game, ui);
+                cardDrawn.playCard(game);
                 break;
             } else {
                 addDrawnCardToHand(cardDrawn);
@@ -205,7 +202,7 @@ public class TurnService {
 
     private void addDrawnCardToHand(Card card) {
         game.addToCurrentPlayer(card);
-        ui.displayMessage("drawCard");
+        game.notifyMessage("drawCard");
         Player currentPlayer = game.getCurrentPlayer();
         currentPlayer.decreaseTurnByOne();
         game.setPlayer(currentPlayer);
@@ -217,7 +214,7 @@ public class TurnService {
         }
         
         Player currentPlayer = game.getCurrentPlayer();
-        ui.displayFormattedMessage("endTurn", currentPlayer.getId());
+        game.notifyFormattedMessage("endTurn", currentPlayer.getId());
         resetPlayerState();
         game.nextPlayer();
     }
@@ -234,9 +231,9 @@ public class TurnService {
     private void displayPlayerHand(Player player, Boolean visibility) {
         for (int i = 0; i < player.getHand().size(); i++) {
             if (visibility) {
-                ui.displayFormattedMessage("visibleCard", i, player.getHand().get(i).getName());
+                game.notifyFormattedMessage("visibleCard", i, player.getHand().get(i).getName());
             } else {
-                ui.displayFormattedMessage("hiddenCard", i);
+                game.notifyFormattedMessage("hiddenCard", i);
             }
         }
     }
@@ -245,32 +242,32 @@ public class TurnService {
         var visibleCardsMap = game.getVisibleCards();
 
         if (!visibleCardsMap.isEmpty()) {
-            ui.displayMessage("displayMarkedCards");
+            game.notifyMessage("displayMarkedCards");
         }
 
         for (var entry : visibleCardsMap.entrySet()) {
             int playerId = entry.getKey();
             var visibleCards = entry.getValue();
 
-            ui.displayFormattedMessage("playerIdMessage", playerId);
+            game.notifyFormattedMessage("playerIdMessage", playerId);
 
             for (Card card : visibleCards) {
-                ui.displayFormattedMessage("cardDisplay", "-", card.getName());
+                game.notifyFormattedMessage("cardDisplay", "-", card.getName());
             }
         }
     }
 
     private void displayGameInfo() {
-        ui.displayMessage("activePlayers");
+        game.notifyMessage("activePlayers");
         List<Player> players = game.getPlayers();
         for (Player player : players) {
-            ui.displayFormattedMessage("playerInfo", player.getId());
+            game.notifyFormattedMessage("playerInfo", player.getId());
         }
-        ui.displayMessage("separator");
+        game.notifyMessage("separator");
         int nextPlayerIndex = 1;
         if (players.size() > 1) {
-            ui.displayFormattedMessage("nextPlayer", players.get(nextPlayerIndex).getId());
+            game.notifyFormattedMessage("nextPlayer", players.get(nextPlayerIndex).getId());
         }
-        ui.displayMessage("separator");
+        game.notifyMessage("separator");
     }
 }

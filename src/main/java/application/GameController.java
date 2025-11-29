@@ -4,7 +4,8 @@ import domain.model.ExpansionPack;
 import domain.model.Game;
 import domain.model.GameConfiguration;
 import domain.model.Player;
-import ui.UI;
+import ui.GameObserver;
+import ui.InputProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,39 +14,41 @@ public class GameController {
     private static final int ENGLISH = 0;
     private static final int FRENCH = 1;
 
-    private final UI ui;
+    private final InputProvider inputProvider;
+    private final GameObserver gameObserver;
     private Game game;
 
     @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
-    public GameController(UI ui) {
-        this.ui = ui;
+    public GameController(InputProvider inputProvider, GameObserver gameObserver) {
+        this.inputProvider = inputProvider;
+        this.gameObserver = gameObserver;
     }
 
     public void startGame() {
-        ui.displayMessage("welcomeMessage");
+        gameObserver.displayMessage("welcomeMessage");
         int language = -1;
         while( language != FRENCH && language != ENGLISH ) {
-            language = ui.promptPlayer("language");
+            language = inputProvider.promptPlayer("language");
         }
 
         if (language == FRENCH) {
-            ui.changeLanguage("fr", "Fr");
+            gameObserver.changeLanguage("fr", "Fr");
         }
 
         GameConfiguration config = getGameConfiguration();
         
         if (this.game == null) {
-            this.game = new Game(config.getPlayerCount(), ui, new domain.factory.DeckFactory(), config.getExpansionPacks());
+            this.game = new Game(config.getPlayerCount(), inputProvider, gameObserver, new domain.factory.DeckFactory(), config.getExpansionPacks());
         }
 
         while(!game.isGameOver()) {
             game.takeTurn();
         }
 
-        ui.displayMessage("gameOver");
+        gameObserver.displayMessage("gameOver");
         Player winner = game.getWinner();
         if (winner != null) {
-            ui.displayFormattedMessage("winner", winner.getId());
+            gameObserver.displayFormattedMessage("winner", winner.getId());
         }
     }
 
@@ -54,7 +57,7 @@ public class GameController {
         
         while (config == null) {
             try {
-                Set<Integer> expansionNumbers = ui.promptExpansionPackNumbers();
+                Set<Integer> expansionNumbers = inputProvider.promptExpansionPackNumbers();
                 Set<ExpansionPack> expansionPacks = new HashSet<>();
                 
                 for (int number : expansionNumbers) {
@@ -72,15 +75,15 @@ public class GameController {
                         }
                         expansionNames.append(pack.getDisplayName());
                     }
-                    ui.displayFormattedMessage("selectedExpansions", expansionNames.toString());
+                    gameObserver.displayFormattedMessage("selectedExpansions", expansionNames.toString());
                 }
                 
-                int playerCount = ui.promptPlayer("enterNumPlayers");
+                int playerCount = inputProvider.promptPlayer("enterNumPlayers");
                 
                 config = new GameConfiguration(playerCount, expansionPacks);
                 
             } catch (IllegalArgumentException e) {
-                ui.displayMessage(e.getMessage());
+                gameObserver.displayMessage(e.getMessage());
             }
         }
         
