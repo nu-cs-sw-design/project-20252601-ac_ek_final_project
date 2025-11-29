@@ -6,12 +6,14 @@ import domain.service.DeckService;
 import domain.service.GameStateService;
 import domain.service.PlayerService;
 import domain.service.TurnService;
-import ui.UI;
+import ui.GameObserver;
+import ui.InputProvider;
 
 import java.util.*;
 
 public class Game {
-    private final UI ui;
+    private final List<GameObserver> observers = new ArrayList<>();
+    private final InputProvider inputProvider;
     private final Set<ExpansionPack> expansionPacks;
 
     private final PlayerService playerService;
@@ -19,8 +21,9 @@ public class Game {
     private final GameStateService gameStateService;
 
     @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
-    public Game(int numberOfPlayers, UI ui, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
-        this.ui = ui;
+    public Game(int numberOfPlayers, InputProvider inputProvider, GameObserver observer, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
+        this.inputProvider = inputProvider;
+        this.observers.add(observer);
         this.expansionPacks = new HashSet<>(expansionPacks);
 
         this.deckService = new DeckService(deckFactory);
@@ -35,8 +38,38 @@ public class Game {
     }
 
     public void takeTurn() {
-        TurnService turnService = new TurnService(this, ui);
+        TurnService turnService = new TurnService(this);
         turnService.executeTurn();
+    }
+
+    public void addObserver(GameObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(GameObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void notifyMessage(String key) {
+        for (GameObserver observer : observers) {
+            observer.displayMessage(key);
+        }
+    }
+
+    public void notifyFormattedMessage(String key, Object... args) {
+        for (GameObserver observer : observers) {
+            observer.displayFormattedMessage(key, args);
+        }
+    }
+
+    public void notifyClearScreen() {
+        for (GameObserver observer : observers) {
+            observer.clearScreen();
+        }
+    }
+
+    public InputProvider getInputProvider() {
+        return inputProvider;
     }
 
     public void deletePlayer(int id) {
@@ -89,11 +122,6 @@ public class Game {
 
     public boolean isDeckEmpty() {
         return deckService.isEmpty();
-    }
-
-    @SuppressWarnings("EI_EXPOSE_REP") // UI is a shared service object, not mutable state
-    public UI getUI() {
-        return this.ui;
     }
 
     public List<Player> getPlayers() {
