@@ -24,8 +24,17 @@ public class ExplodingKittenCard extends Card {
         public void execute(GameContext context) {
             context.displayMessage("explodingKitten");
             Player currentPlayer = context.getCurrentPlayer();
+            boolean hasExplodingKitten = currentPlayer.hasCard("Exploding Kitten") != NOT_FOUND;
 
             if (currentPlayer.hasCard("Defuse") != NOT_FOUND && currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND) {
+                if (hasExplodingKitten) {
+                    int defuseIndex = currentPlayer.hasCard("Defuse");
+                    context.removeCurrentPlayerCard(defuseIndex);
+                    insertIntoDeck(context);
+                    context.displayMessage("defuseCard");
+                    return;
+                }
+
                 int choice = context.promptPlayer("keepOrAddExploding");
 
                 if (choice == ADD_TO_DECK) {
@@ -50,7 +59,7 @@ public class ExplodingKittenCard extends Card {
                 return;
             }
 
-            if (currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND) {
+            if (currentPlayer.hasCard("Streaking Kitten") != NOT_FOUND && !hasExplodingKitten) {
                 context.addToCurrentPlayer(new ExplodingKittenCard());
                 context.displayMessage("addExplodingKitten");
                 return;

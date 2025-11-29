@@ -28,6 +28,7 @@ public class ConsoleUI implements GameObserver, InputProvider {
             try {
                 System.out.println(message);
                 userInput = scanner.nextInt();
+                scanner.nextLine();
                 validInput = true;
             } catch (java.util.InputMismatchException e) {
                 System.out.println("Invalid input - please enter an integer");

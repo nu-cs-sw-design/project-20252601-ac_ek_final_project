@@ -36,7 +36,12 @@ public class FavorCard extends Card{
             }
 
             Player chosenPlayer = context.getPlayer(chosenPlayerID);
+            
+            context.setCurrentPlayer(chosenPlayer);
+            context.displayFormattedMessage("player", chosenPlayer.getId());
             int chosenCardIndex = context.promptPlayer("chosenPlayerCardIndex");
+            context.setCurrentPlayer(curentPlayer);
+
             Card choosenCard = chosenPlayer.chooseCard(chosenCardIndex);
             chosenPlayer.removeCard(chosenCardIndex);
             context.setPlayer(chosenPlayer);
