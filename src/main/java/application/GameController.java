@@ -38,7 +38,7 @@ public class GameController {
         GameConfiguration config = getGameConfiguration();
         
         if (this.game == null) {
-            this.game = new Game(config.getPlayerCount(), inputProvider, gameObserver, new domain.factory.DeckFactory(), config.getExpansionPacks());
+            this.game = new Game(config.getPlayerCount(), config.getAIPlayerCount(), inputProvider, gameObserver, new domain.factory.DeckFactory(), config.getExpansionPacks());
         }
 
         while(!game.isGameOver()) {
@@ -78,9 +78,10 @@ public class GameController {
                     gameObserver.displayFormattedMessage("selectedExpansions", expansionNames.toString());
                 }
                 
-                int playerCount = inputProvider.promptPlayer("enterNumPlayers");
+                int humanPlayerCount = inputProvider.promptPlayer("enterNumHumanPlayers");
+                int aiPlayerCount = inputProvider.promptPlayer("enterNumAIPlayers");
                 
-                config = new GameConfiguration(playerCount, expansionPacks);
+                config = new GameConfiguration(humanPlayerCount, aiPlayerCount, expansionPacks);
                 
             } catch (IllegalArgumentException e) {
                 gameObserver.displayMessage(e.getMessage());

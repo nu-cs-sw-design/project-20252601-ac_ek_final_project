@@ -10,11 +10,16 @@ import java.util.List;
 
 public class PlayerFactory {
 
-    public List<Player> createPlayers(int numberOfPlayers, Deck deck, int initialCardsPerPlayer) {
+    public List<Player> createPlayers(int numberOfPlayers, int numberOfAIPlayers, Deck deck, int initialCardsPerPlayer) {
         List<Player> players = new ArrayList<>(numberOfPlayers);
         
+        int firstAIPlayerIndex = numberOfPlayers - numberOfAIPlayers;
+
         for (int i = 0; i < numberOfPlayers; i++) {
             Player newPlayer = createPlayer(i + 1, deck, initialCardsPerPlayer);
+            if (i >= firstAIPlayerIndex) {
+                newPlayer.setAI(true);
+            }
             players.add(newPlayer);
         }
         

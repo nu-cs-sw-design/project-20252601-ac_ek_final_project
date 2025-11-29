@@ -18,9 +18,9 @@ public class PlayerService {
         this.playerFactory = new PlayerFactory();
     }
 
-    public void initializePlayers(int numberOfPlayers, Deck deck, boolean hasExpansions) {
+    public void initializePlayers(int numberOfPlayers, int numberOfAIPlayers, Deck deck, boolean hasExpansions) {
         int initialCardsPerPlayer = playerFactory.getInitialCardsPerPlayer(hasExpansions);
-        List<Player> players = playerFactory.createPlayers(numberOfPlayers, deck, initialCardsPerPlayer);
+        List<Player> players = playerFactory.createPlayers(numberOfPlayers, numberOfAIPlayers, deck, initialCardsPerPlayer);
         this.playerManager = new PlayerManager(players);
     }
 

@@ -9,16 +9,25 @@ public class GameConfiguration {
     private static final int MAX_PLAYERS_PARTY = 10;
     
     private final int playerCount;
+    private final int aiPlayerCount;
     private final Set<ExpansionPack> expansionPacks;
 
-    public GameConfiguration(int playerCount, Set<ExpansionPack> expansionPacks) {
+    public GameConfiguration(int numHumanPlayers, int numAIPlayers, Set<ExpansionPack> expansionPacks) {
         this.expansionPacks = new HashSet<>(expansionPacks);
-        validateConfiguration(playerCount, this.expansionPacks);
-        this.playerCount = playerCount;
+        this.playerCount = numHumanPlayers + numAIPlayers;
+        this.aiPlayerCount = numAIPlayers;
+        validateConfiguration(this.playerCount, numAIPlayers, this.expansionPacks);
     }
 
-    private void validateConfiguration(int playerCount, Set<ExpansionPack> expansionPacks) {
+    private void validateConfiguration(int playerCount, int aiPlayerCount, Set<ExpansionPack> expansionPacks) {
         validatePlayerCount(playerCount, expansionPacks);
+        validateAIPlayerCount(playerCount, aiPlayerCount);
+    }
+
+    private void validateAIPlayerCount(int playerCount, int aiPlayerCount) {
+        if (aiPlayerCount < 0) {
+            throw new IllegalArgumentException("negativeAIPlayers");
+        }
     }
 
     private void validatePlayerCount(int playerCount, Set<ExpansionPack> expansionPacks) {
@@ -56,6 +65,10 @@ public class GameConfiguration {
 
     public int getPlayerCount() {
         return playerCount;
+    }
+
+    public int getAIPlayerCount() {
+        return aiPlayerCount;
     }
 
     public Set<ExpansionPack> getExpansionPacks() {

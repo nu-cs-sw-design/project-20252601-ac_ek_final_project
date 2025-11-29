@@ -10,6 +10,7 @@ public class Player {
     private int numberOfTurns;
     private boolean visibility = true;
     private boolean hasNope = false;
+    private boolean isAI = false;
 
     public Player(int id, ArrayList<Card> hand) {
         this.id = id;
@@ -23,6 +24,15 @@ public class Player {
         this.numberOfTurns = player.getNumberOfTurns();
         this.visibility = player.getHandVisibility();
         this.hasNope = player.getHasNope();
+        this.isAI = player.isAI();
+    }
+
+    public boolean isAI() {
+        return isAI;
+    }
+
+    public void setAI(boolean isAI) {
+        this.isAI = isAI;
     }
 
     public int addCard(Card card) {

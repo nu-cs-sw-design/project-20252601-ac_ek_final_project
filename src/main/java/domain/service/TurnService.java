@@ -3,6 +3,7 @@ package domain.service;
 import domain.model.cards.Card;
 import domain.model.Game;
 import domain.model.Player;
+import domain.model.AIAgent;
 import domain.model.cards.special.ExplodingKittenCard;
 import domain.model.cards.special.ImplodingKittenCard;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class TurnService {
     private final Game game;
+    private final AIAgent aiAgent = new AIAgent();
 
     public TurnService(Game game) {
         this.game = game;
@@ -20,6 +22,13 @@ public class TurnService {
         handleCardPlayingPhase();
         handleCardDrawingPhase();
         finalizeTurn();
+    }
+
+    private int prompt(Player player, String key) {
+        if (player.isAI()) {
+            return aiAgent.getDecision(key, game);
+        }
+        return game.getInputProvider().promptPlayer(key);
     }
 
     private void initializeTurn() {
@@ -44,7 +53,7 @@ public class TurnService {
         while (playCardChoice == playCardYes && currentPlayer.getNumberOfTurns() > 0 && !currentPlayer.isHandEmpty()) {
             game.notifyMessage("currentHand");
             displayPlayerHand(currentPlayer, currentPlayer.getHandVisibility());
-            playCardChoice = game.getInputProvider().promptPlayer("playCardPrompt");
+            playCardChoice = prompt(currentPlayer, "playCardPrompt");
 
             if (playCardChoice == playCardYes) {
                 boolean playerEliminated = attemptToPlayCard();
@@ -61,7 +70,7 @@ public class TurnService {
         Player currentPlayer = game.getCurrentPlayer();
 
         while (!validCardPlayed && !currentPlayer.isHandEmpty()) {
-            int cardIndex = game.getInputProvider().promptPlayer("chooseCardPrompt");
+            int cardIndex = prompt(currentPlayer, "chooseCardPrompt");
             
             try {
                 Card selectedCard = currentPlayer.chooseCard(cardIndex);
@@ -95,7 +104,7 @@ public class TurnService {
                 int nopeIndex = player.hasCard("Nope");
                 if (nopeIndex != -1) {
                     game.notifyFormattedMessage("player", player.getId());
-                    int wantsToPlay = game.getInputProvider().promptPlayer("chooseNope");
+                    int wantsToPlay = prompt(player, "chooseNope");
                     
                     if (wantsToPlay == 1) {
                         boolean actionCanceled = playNopeCard(player, nopeIndex);
@@ -134,7 +143,7 @@ public class TurnService {
                 int nopeIndex = player.hasCard("Nope");
                 if (nopeIndex != -1) {
                     game.notifyFormattedMessage("player", player.getId());
-                    int wantsToPlay = game.getInputProvider().promptPlayer("chooseNope");
+                    int wantsToPlay = prompt(player, "chooseNope");
                     
                     if (wantsToPlay == 1) {
                         Card counterNope = player.chooseCard(nopeIndex);

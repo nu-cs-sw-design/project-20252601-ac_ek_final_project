@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class GameContext {
     private final Game game;
+    private final AIAgent aiAgent = new AIAgent();
 
     public GameContext(Game game) {
         this.game = game;
@@ -21,6 +22,9 @@ public class GameContext {
     }
 
     public int promptPlayer(String prompt) {
+        if (game.getCurrentPlayer().isAI()) {
+            return aiAgent.getDecision(prompt, game);
+        }
         return game.getInputProvider().promptPlayer(prompt);
     }
 

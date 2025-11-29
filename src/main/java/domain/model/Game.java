@@ -21,7 +21,7 @@ public class Game {
     private final GameStateService gameStateService;
 
     @SuppressWarnings("EI_EXPOSE_REP2") // UI is a shared service object, not mutable state
-    public Game(int numberOfPlayers, InputProvider inputProvider, GameObserver observer, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
+    public Game(int numberOfPlayers, int numberOfAIPlayers, InputProvider inputProvider, GameObserver observer, DeckFactory deckFactory, Set<ExpansionPack> expansionPacks) {
         this.inputProvider = inputProvider;
         this.observers.add(observer);
         this.expansionPacks = new HashSet<>(expansionPacks);
@@ -32,7 +32,7 @@ public class Game {
 
         deckService.initializeDeck(numberOfPlayers, this.expansionPacks);
         
-        playerService.initializePlayers(numberOfPlayers, deckService.getDeckForInitialization(), !expansionPacks.isEmpty());
+        playerService.initializePlayers(numberOfPlayers, numberOfAIPlayers, deckService.getDeckForInitialization(), !expansionPacks.isEmpty());
 
         deckService.addRemainingCards(numberOfPlayers, this.expansionPacks);
     }
