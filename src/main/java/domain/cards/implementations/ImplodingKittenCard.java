@@ -3,7 +3,6 @@ package domain.cards.implementations;
 import domain.cards.Card;
 import domain.cards.CardManager;
 import domain.deck.Deck;
-import domain.deck.DeckManager;
 import domain.game.GameContext;
 import domain.player.Player;
 

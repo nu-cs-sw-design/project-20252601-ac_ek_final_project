@@ -1,9 +1,7 @@
 package domain.player;
 
 import domain.cards.Card;
-import domain.deck.Deck;
 import domain.game.GameEngine;
-import domain.game.GameContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +85,11 @@ public class AIAgent {
     private boolean isCardPlayable(Card card, Player player) {
         String name = card.getName();
         
-        if (name.equals("Defuse") || name.equals("Exploding Kitten") || name.equals("Imploding Kitten") || name.equals("Nope") || name.equals("Streaking Kitten")) {
+        if (name.equals("Defuse")
+                || name.equals("Exploding Kitten")
+                || name.equals("Imploding Kitten")
+                || name.equals("Nope")
+                || name.equals("Streaking Kitten")) {
             return false;
         }
 

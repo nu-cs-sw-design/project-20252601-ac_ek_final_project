@@ -1,9 +1,6 @@
 package domain.cards.expansions;
 
-import domain.cards.Card;
 import domain.deck.Deck;
-
-import java.util.List;
 
 public interface ExpansionStrategy {
     String getId();
@@ -15,9 +12,6 @@ public interface ExpansionStrategy {
     default int getMaxPlayers() {
         return 5; // Default base game max
     }
-    default int getMinPlayers() {
-        return 2;
-    }
     default boolean isBaseGameModifier() {
         return false;
     }
@@ -26,8 +20,5 @@ public interface ExpansionStrategy {
     }
     default int getAdditionalDefuseCards(int playerCount) {
         return 0;
-    }
-    default boolean hasImplodingKitten() {
-        return false;
     }
 }

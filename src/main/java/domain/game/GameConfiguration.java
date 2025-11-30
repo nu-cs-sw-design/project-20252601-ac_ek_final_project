@@ -5,7 +5,6 @@ import domain.cards.expansions.ExpansionStrategy;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class GameConfiguration {
     private static final int MIN_PLAYERS = 2;
@@ -50,7 +49,12 @@ public class GameConfiguration {
     }
 
     private int getMaxPlayersForExpansions(Set<String> expansionIds) {
-        return expansionIds.stream().map(ExpansionRegistry::getById).filter(java.util.Optional::isPresent).map(java.util.Optional::get).mapToInt(ExpansionStrategy::getMaxPlayers).max().orElse(DEFAULT_MAX_PLAYERS);
+        return expansionIds.stream()
+                .map(ExpansionRegistry::getById)
+                .filter(java.util.Optional::isPresent)
+                .map(java.util.Optional::get)
+                .mapToInt(ExpansionStrategy::getMaxPlayers)
+                .max().orElse(DEFAULT_MAX_PLAYERS);
     }
 
     public static boolean isValidExpansionNumber(int expansionNumber) {
@@ -58,7 +62,9 @@ public class GameConfiguration {
     }
 
     public static String getExpansionId(int expansionNumber) {
-        return ExpansionRegistry.getByNumber(expansionNumber).map(ExpansionStrategy::getId).orElseThrow(() -> new IllegalArgumentException("invalidExpansionSelection"));
+        return ExpansionRegistry.getByNumber(expansionNumber)
+                .map(ExpansionStrategy::getId)
+                .orElseThrow(() -> new IllegalArgumentException("invalidExpansionSelection"));
     }
 
     public static String getExpansionDisplayName(int expansionNumber) {
@@ -77,15 +83,4 @@ public class GameConfiguration {
         return new HashSet<>(expansionIds);
     }
 
-    public Set<String> getExpansionDisplayNames() {
-        return expansionIds.stream().map(ExpansionRegistry::getById).filter(java.util.Optional::isPresent).map(java.util.Optional::get).map(ExpansionStrategy::getDisplayName).collect(Collectors.toSet());
-    }
-
-    public int getMaxPlayers() {
-        return getMaxPlayersForExpansions(expansionIds);
-    }
-
-    public int getMinPlayers() {
-        return MIN_PLAYERS;
-    }
 }

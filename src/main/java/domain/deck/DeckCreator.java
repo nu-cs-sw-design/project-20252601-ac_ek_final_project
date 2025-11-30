@@ -1,7 +1,6 @@
 package domain.deck;
 
 import domain.cards.Card;
-import domain.cards.CardCreator;
 import domain.cards.expansions.BaseGameExpansion;
 import domain.cards.expansions.ExpansionRegistry;
 import domain.cards.expansions.ExpansionStrategy;
@@ -15,17 +14,10 @@ import java.util.Set;
 public class DeckCreator {
     private static final int MIN_PLAYERS = 2;
     private static final int BASE_DEFUSE_COUNT = 6;
-    
-    private final CardCreator cardCreator;
+
     private final ExpansionStrategy baseGame;
 
     public DeckCreator() {
-        this.cardCreator = new CardCreator();
-        this.baseGame = new BaseGameExpansion();
-    }
-
-    public DeckCreator(CardCreator cardCreator) {
-        this.cardCreator = cardCreator;
         this.baseGame = new BaseGameExpansion();
     }
 
@@ -67,16 +59,6 @@ public class DeckCreator {
         }
         
         deck.shuffle();
-    }
-
-    public int getDefuseCardCount(int playerCount, Set<String> expansionIds) {
-        List<ExpansionStrategy> expansions = resolveExpansions(expansionIds);
-        return calculateTotalDefuseCards(playerCount, expansions);
-    }
-
-    public int getExplodingKittenCount(int playerCount, Set<String> expansionIds) {
-        List<ExpansionStrategy> expansions = resolveExpansions(expansionIds);
-        return calculateExplodingKittenCount(playerCount, expansions);
     }
 
     private List<ExpansionStrategy> resolveExpansions(Set<String> expansionIds) {

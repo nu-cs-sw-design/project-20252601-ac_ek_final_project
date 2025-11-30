@@ -2,8 +2,6 @@ package domain.deck;
 
 import domain.cards.Card;
 
-import java.util.List;
-
 public class Deck {
     private DrawPile drawPile;
 
@@ -41,13 +39,5 @@ public class Deck {
 
     public DrawPile getDrawPile() {
         return drawPile;
-    }
-
-    public void setDrawPile(DrawPile drawPile) {
-        this.drawPile = drawPile;
-    }
-
-    public List<Card> getAllCards() {
-        return drawPile.getAll();
     }
 }

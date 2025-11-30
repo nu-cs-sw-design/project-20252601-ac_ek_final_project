@@ -16,10 +16,6 @@ public class NopeOperation {
         this.playerManager = new PlayerManager();
     }
 
-    public NopeOperation(PlayerManager playerManager) {
-        this.playerManager = playerManager;
-    }
-
     public boolean checkForNopeInterruption(GameEngine game, Card cardToPlay) {
         Player currentPlayer = game.getCurrentPlayer();
         return promptPlayersForNope(game, currentPlayer.getId());

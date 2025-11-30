@@ -125,16 +125,4 @@ public class DeckManager {
         drawPile.add(indexOfNewCard, card);
     }
 
-    public Deck copy(Deck deck) {
-        DrawPile drawPile = deck.getDrawPile();
-        if (drawPile.isEmpty()) {
-            return new Deck();
-        }
-
-        Deck copiedDeck = new Deck();
-        for (Card card : drawPile.getAll()) {
-            copiedDeck.addCard(card);
-        }
-        return copiedDeck;
-    }
 }

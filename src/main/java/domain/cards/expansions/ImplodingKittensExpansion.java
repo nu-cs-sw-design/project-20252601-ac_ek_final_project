@@ -40,11 +40,6 @@ public class ImplodingKittensExpansion implements ExpansionStrategy {
         deck.addCard(new ImplodingKittenCard(ImplodingKittenCard.DrawnBefore.NOT_DRAWN));
     }
 
-    @Override
-    public boolean hasImplodingKitten() {
-        return true;
-    }
-
     private void addCards(Deck deck, java.util.function.Supplier<Card> cardFactory, int count) {
         for (int i = 0; i < count; i++) {
             deck.addCard(cardFactory.get());

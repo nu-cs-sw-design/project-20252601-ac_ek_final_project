@@ -42,12 +42,5 @@ public final class UIRegistry {
     public static Collection<String> getAvailableTypes() {
         return uiFactories.keySet();
     }
-    
-    public static String getDisplayName(String type) {
-        return uiDisplayNames.getOrDefault(type.toLowerCase(), type);
-    }
-    
-    public static int getRegisteredCount() {
-        return uiFactories.size();
-    }
+
 }

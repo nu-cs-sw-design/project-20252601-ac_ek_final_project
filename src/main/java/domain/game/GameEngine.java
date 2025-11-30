@@ -24,7 +24,12 @@ public class GameEngine {
     private final Game game;
     private static final int MINIMUM_PLAYERS = 1;
     
-    public GameEngine(GameUI userInterface, DeckManager deckManager, PlayerManager PlayerManager, NopeOperation nopeOperation, Game game, Set<String> expansionIds) {
+    public GameEngine(GameUI userInterface,
+                      DeckManager deckManager,
+                      PlayerManager PlayerManager,
+                      NopeOperation nopeOperation,
+                      Game game,
+                      Set<String> expansionIds) {
         this.userInterface = userInterface;
         this.observers = new ArrayList<>();
         this.observers.add(userInterface);
@@ -38,14 +43,6 @@ public class GameEngine {
     public void takeTurn() {
         Turn turn = new Turn(this, nopeOperation);
         turn.executeTurn();
-    }
-
-    public void addObserver(GameUI observer) {
-        observers.add(observer);
-    }
-
-    public void removeObserver(GameUI observer) {
-        observers.remove(observer);
     }
 
     public void notifyMessage(String key) {

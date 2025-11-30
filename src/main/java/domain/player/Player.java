@@ -1,9 +1,6 @@
 package domain.player;
 
 import domain.cards.Card;
-import domain.deck.Deck;
-import domain.game.GameEngine;
-import domain.game.GameContext;
 
 import java.util.ArrayList;
 

@@ -1,6 +1,5 @@
 package domain.cards.expansions;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,17 +32,5 @@ public final class ExpansionRegistry {
     
     public static boolean isValidNumber(int number) {
         return expansionsByNumber.containsKey(number);
-    }
-    
-    public static Collection<ExpansionStrategy> getAllExpansions() {
-        return expansionsById.values();
-    }
-    
-    public static int getExpansionCount() {
-        return expansionsById.size();
-    }
-    
-    public static int getMaxSelectionNumber() {
-        return expansionsByNumber.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
     }
 }
