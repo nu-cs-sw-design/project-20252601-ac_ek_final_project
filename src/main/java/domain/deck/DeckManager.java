@@ -1,7 +1,6 @@
 package domain.deck;
 
 import domain.cards.Card;
-import domain.cards.ExpansionPack;
 import domain.cards.implementations.ExplodingKittenCard;
 
 import java.util.ArrayList;
@@ -16,14 +15,14 @@ public class DeckManager {
         this.deckCreator = deckCreator;
     }
 
-    public Deck initializeDeck(int numberOfPlayers, Set<ExpansionPack> expansionPacks) {
-        Deck deck = deckCreator.createDeck(numberOfPlayers, expansionPacks);
+    public Deck initializeDeck(int numberOfPlayers, Set<String> expansionIds) {
+        Deck deck = deckCreator.createDeck(numberOfPlayers, expansionIds);
         deck.shuffle();
         return deck;
     }
 
-    public void addRemainingCards(Deck deck, int numberOfPlayers, Set<ExpansionPack> expansionPacks) {
-        deckCreator.addRemainingCards(deck, numberOfPlayers, expansionPacks);
+    public void addRemainingCards(Deck deck, int numberOfPlayers, Set<String> expansionIds) {
+        deckCreator.addRemainingCards(deck, numberOfPlayers, expansionIds);
     }
 
     public Card drawTopCard(Deck deck) {

@@ -16,7 +16,7 @@ public class PlayerCreator {
     public List<Player> createPlayers(GameConfiguration config, Deck deck, UserInterface UserInterface) {
         int numberOfPlayers = config.getPlayerCount();
         int numberOfAIPlayers = config.getAIPlayerCount();
-        int initialCardsPerPlayer = getInitialCardsPerPlayer(!config.getExpansionPacks().isEmpty());
+        int initialCardsPerPlayer = getInitialCardsPerPlayer(!config.getExpansionIds().isEmpty());
         
         List<Player> players = new ArrayList<>(numberOfPlayers);
         

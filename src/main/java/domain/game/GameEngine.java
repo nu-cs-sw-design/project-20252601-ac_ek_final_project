@@ -1,9 +1,7 @@
 package domain.game;
 
 import domain.cards.Card;
-import domain.cards.ExpansionPack;
 import domain.deck.Deck;
-import domain.deck.DeckCreator;
 import domain.deck.DeckManager;
 import domain.player.Player;
 import domain.player.PlayerManager;
@@ -17,7 +15,7 @@ import java.util.Set;
 public class GameEngine {
     private final List<UserInterface> observers;
     private final UserInterface userInterface;
-    private final Set<ExpansionPack> expansionPacks;
+    private final Set<String> expansionIds;
 
     private final PlayerManager PlayerManager;
     private final DeckManager deckManager;
@@ -26,7 +24,7 @@ public class GameEngine {
     private final Game game;
     private static final int MINIMUM_PLAYERS = 1;
     
-    public GameEngine(UserInterface userInterface, DeckManager deckManager, PlayerManager PlayerManager, NopeOperation nopeOperation, Game game, Set<ExpansionPack> expansionPacks) {
+    public GameEngine(UserInterface userInterface, DeckManager deckManager, PlayerManager PlayerManager, NopeOperation nopeOperation, Game game, Set<String> expansionIds) {
         this.userInterface = userInterface;
         this.observers = new java.util.ArrayList<>();
         this.observers.add(userInterface);
@@ -34,7 +32,7 @@ public class GameEngine {
         this.PlayerManager = PlayerManager;
         this.nopeOperation = nopeOperation;
         this.game = game;
-        this.expansionPacks = expansionPacks;
+        this.expansionIds = expansionIds;
     }
 
     public void takeTurn() {

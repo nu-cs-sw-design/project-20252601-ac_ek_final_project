@@ -1,15 +1,13 @@
 package application;
 
 import domain.deck.Deck;
-import domain.player.Player;
-
 import domain.deck.DeckCreator;
-import domain.cards.ExpansionPack;
+import domain.deck.DeckManager;
 import domain.game.GameConfiguration;
 import domain.game.GameEngine;
 import domain.game.Game;
-import domain.deck.DeckManager;
 import domain.game.NopeOperation;
+import domain.player.Player;
 import domain.player.PlayerManager;
 import ui.UserInterface;
 
@@ -41,20 +39,13 @@ public class Main {
         NopeOperation nopeOperation = new NopeOperation();
         Game game = new Game();
 
-        GameEngine gameEngine = new GameEngine(
-            ui, 
-            deckManager, 
-            PlayerManager, 
-            nopeOperation,
-            game, 
-            config.getExpansionPacks()
-        );
+        GameEngine gameEngine = new GameEngine(ui, deckManager, PlayerManager, nopeOperation, game, config.getExpansionIds());
 
-        var deck = deckManager.initializeDeck(config.getPlayerCount(), config.getExpansionPacks());
+        var deck = deckManager.initializeDeck(config.getPlayerCount(), config.getExpansionIds());
         game.setDeck(deck);
         var players = PlayerManager.initializePlayers(config, deck, ui);
         game.setPlayers(players);
-        deckManager.addRemainingCards(deck, config.getPlayerCount(), config.getExpansionPacks());
+        deckManager.addRemainingCards(deck, config.getPlayerCount(), config.getExpansionIds());
 
         GameCreator gameCreator = new GameCreator(gameEngine, ui);
         gameCreator.startGame();
@@ -66,22 +57,22 @@ public class Main {
         while (config == null) {
             try {
                 Set<Integer> expansionNumbers = ui.promptExpansionPackNumbers();
-                Set<ExpansionPack> expansionPacks = new HashSet<>();
+                Set<String> expansionIds = new HashSet<>();
                 
                 for (int number : expansionNumbers) {
                     if (!GameConfiguration.isValidExpansionNumber(number)) {
                         throw new IllegalArgumentException("invalidExpansionSelection");
                     }
-                    expansionPacks.add(GameConfiguration.getExpansionPack(number));
+                    expansionIds.add(GameConfiguration.getExpansionId(number));
                 }
                 
-                if (!expansionPacks.isEmpty()) {
+                if (!expansionIds.isEmpty()) {
                     StringBuilder expansionNames = new StringBuilder();
-                    for (ExpansionPack pack : expansionPacks) {
+                    for (int number : expansionNumbers) {
                         if (expansionNames.length() > 0) {
                             expansionNames.append(", ");
                         }
-                        expansionNames.append(pack.getDisplayName());
+                        expansionNames.append(GameConfiguration.getExpansionDisplayName(number));
                     }
                     ui.displayFormattedMessage("selectedExpansions", expansionNames.toString());
                 }
@@ -89,7 +80,7 @@ public class Main {
                 int humanPlayerCount = ui.promptPlayer("enterNumHumanPlayers");
                 int aiPlayerCount = ui.promptPlayer("enterNumAIPlayers");
                 
-                config = new GameConfiguration(humanPlayerCount, aiPlayerCount, expansionPacks);
+                config = new GameConfiguration(humanPlayerCount, aiPlayerCount, expansionIds);
                 
             } catch (IllegalArgumentException e) {
                 ui.displayMessage(e.getMessage());
