@@ -5,16 +5,16 @@ import domain.deck.Deck;
 import domain.deck.DeckManager;
 import domain.player.Player;
 import domain.player.PlayerManager;
-import ui.UserInterface;
+import ui.GameUI;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class GameEngine {
-    private final List<UserInterface> observers;
-    private final UserInterface userInterface;
+    private final List<GameUI> observers;
+    private final GameUI userInterface;
     private final Set<String> expansionIds;
 
     private final PlayerManager PlayerManager;
@@ -24,9 +24,9 @@ public class GameEngine {
     private final Game game;
     private static final int MINIMUM_PLAYERS = 1;
     
-    public GameEngine(UserInterface userInterface, DeckManager deckManager, PlayerManager PlayerManager, NopeOperation nopeOperation, Game game, Set<String> expansionIds) {
+    public GameEngine(GameUI userInterface, DeckManager deckManager, PlayerManager PlayerManager, NopeOperation nopeOperation, Game game, Set<String> expansionIds) {
         this.userInterface = userInterface;
-        this.observers = new java.util.ArrayList<>();
+        this.observers = new ArrayList<>();
         this.observers.add(userInterface);
         this.deckManager = deckManager;
         this.PlayerManager = PlayerManager;
@@ -40,33 +40,33 @@ public class GameEngine {
         turn.executeTurn();
     }
 
-    public void addObserver(UserInterface observer) {
+    public void addObserver(GameUI observer) {
         observers.add(observer);
     }
 
-    public void removeObserver(UserInterface observer) {
+    public void removeObserver(GameUI observer) {
         observers.remove(observer);
     }
 
     public void notifyMessage(String key) {
-        for (UserInterface observer : observers) {
+        for (GameUI observer : observers) {
             observer.displayMessage(key);
         }
     }
 
     public void notifyFormattedMessage(String key, Object... args) {
-        for (UserInterface observer : observers) {
+        for (GameUI observer : observers) {
             observer.displayFormattedMessage(key, args);
         }
     }
 
     public void notifyClearScreen() {
-        for (UserInterface observer : observers) {
+        for (GameUI observer : observers) {
             observer.clearScreen();
         }
     }
 
-    public UserInterface getUserInterface() {
+    public GameUI getUserInterface() {
         return userInterface;
     }
 

@@ -2,15 +2,15 @@ package application;
 
 import domain.game.GameEngine;
 import domain.player.Player;
-import ui.UserInterface;
+import ui.GameUI;
 
 public class GameCreator {
-    private final UserInterface UserInterface;
+    private final GameUI userInterface;
     private final GameEngine gameEngine;
 
-    public GameCreator(GameEngine gameEngine, UserInterface UserInterface) {
+    public GameCreator(GameEngine gameEngine, GameUI userInterface) {
         this.gameEngine = gameEngine;
-        this.UserInterface = UserInterface;
+        this.userInterface = userInterface;
     }
 
     public void startGame() {
@@ -18,10 +18,10 @@ public class GameCreator {
             gameEngine.takeTurn();
         }
 
-        UserInterface.displayMessage("gameOver");
+        userInterface.displayMessage("gameOver");
         Player winner = gameEngine.getWinner();
         if (winner != null) {
-            UserInterface.displayFormattedMessage("winner", winner.getId());
+            userInterface.displayFormattedMessage("winner", winner.getId());
         }
     }
 }

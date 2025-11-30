@@ -4,7 +4,7 @@ import domain.cards.Card;
 import domain.deck.Deck;
 import domain.game.Game;
 import domain.game.GameConfiguration;
-import ui.UserInterface;
+import ui.GameUI;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,8 +22,8 @@ public class PlayerManager {
         this.playerCreator = new PlayerCreator();
     }
 
-    public List<Player> initializePlayers(GameConfiguration config, Deck deck, UserInterface UserInterface) {
-        return playerCreator.createPlayers(config, deck, UserInterface);
+    public List<Player> initializePlayers(GameConfiguration config, Deck deck, GameUI userInterface) {
+        return playerCreator.createPlayers(config, deck, userInterface);
     }
 
     public Player getCurrentPlayer(Game state) {

@@ -4,7 +4,7 @@ import domain.cards.Card;
 import domain.cards.implementations.DefuseCard;
 import domain.deck.Deck;
 import domain.game.GameConfiguration;
-import ui.UserInterface;
+import ui.GameUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class PlayerCreator {
     private final int INITIAL_CARDS_WITH_EXPANSIONS = 8;
     private final int INITIAL_CARDS_WITHOUT_EXPANSIONS = 4;
 
-    public List<Player> createPlayers(GameConfiguration config, Deck deck, UserInterface UserInterface) {
+    public List<Player> createPlayers(GameConfiguration config, Deck deck, GameUI userInterface) {
         int numberOfPlayers = config.getPlayerCount();
         int numberOfAIPlayers = config.getAIPlayerCount();
         int initialCardsPerPlayer = getInitialCardsPerPlayer(!config.getExpansionIds().isEmpty());
@@ -28,7 +28,7 @@ public class PlayerCreator {
                 newPlayer.setAI(true);
                 newPlayer.setController(new PlayerControllerAI());
             } else {
-                newPlayer.setController(new PlayerControllerHuman(UserInterface));
+                newPlayer.setController(new PlayerControllerHuman(userInterface));
             }
             players.add(newPlayer);
         }

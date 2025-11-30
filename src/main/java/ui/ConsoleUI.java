@@ -1,69 +1,71 @@
 package ui;
 
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
-public class UserInterface {
+public class ConsoleUI implements GameUI {    
     private Locale locale;
     private ResourceBundle resourceBundle;
     private final Scanner scanner;
 
-    public UserInterface() {
+    public ConsoleUI() {
         this(System.in);
     }
 
-    public UserInterface(java.io.InputStream in) {
+    public ConsoleUI(InputStream in) {
         this.locale = new Locale("en", "US");
         this.resourceBundle = ResourceBundle.getBundle("messages", locale);
         this.scanner = new Scanner(in, "UTF-8");
     }
 
-    public int promptPlayer(String key) {
-        String message = this.resourceBundle.getString(key);
-        int userInput = 0;
-        boolean validInput = false;
-        
-        while (!validInput) {
-            try {
-                System.out.println(message);
-                userInput = scanner.nextInt();
-                scanner.nextLine();
-                validInput = true;
-            } catch (java.util.InputMismatchException e) {
-                System.out.println("Invalid input - please enter an integer");
-                scanner.nextLine();
-            }
-        }
-        return userInput;
-    }
-
+    @Override
     public void displayMessage(String key) {
-        String message = this.resourceBundle.getString(key);
+        String message = resourceBundle.getString(key);
         System.out.println(message);
     }
 
-    public void changeLanguage(String language, String country) {
-        this.locale = new Locale(language, country);
-        this.resourceBundle = ResourceBundle.getBundle("messages", locale);
-    }
-
+    @Override
     public void displayFormattedMessage(String key, Object... args) {
         String pattern = resourceBundle.getString(key);
         String message = MessageFormat.format(pattern, args);
         System.out.println(message);
     }
 
+    @Override
     public void clearScreen() {
         try {
-            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        } catch (java.io.IOException | InterruptedException e) {
-            // Fallback: print multiple newlines if clearing fails
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
             for (int i = 0; i < 50; i++) {
                 System.out.println();
             }
         }
     }
 
+    @Override
+    public int promptPlayer(String promptKey) {
+        String message = resourceBundle.getString(promptKey);
+        while (true) {
+            try {
+                System.out.println(message);
+                int input = scanner.nextInt();
+                scanner.nextLine();
+                return input;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input - please enter an integer");
+                scanner.nextLine();
+            }
+        }
+    }
+
+    @Override
     public Set<Integer> promptExpansionPackNumbers() {
         Set<Integer> selections = new HashSet<>();
         boolean validInput = false;
@@ -84,7 +86,6 @@ public class UserInterface {
                     int choice = Integer.parseInt(part.trim());
                     selections.add(choice);
                 }
-                
                 validInput = true;
                 
             } catch (NumberFormatException e) {
@@ -92,7 +93,12 @@ public class UserInterface {
                 selections.clear();
             }
         }
-        
         return selections;
+    }
+
+    @Override
+    public void changeLanguage(String language, String country) {
+        this.locale = new Locale(language, country);
+        this.resourceBundle = ResourceBundle.getBundle("messages", locale);
     }
 }

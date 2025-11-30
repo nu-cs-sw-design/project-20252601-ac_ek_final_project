@@ -2,23 +2,23 @@ package domain.player;
 
 import domain.game.Action;
 import domain.game.GameEngine;
-import ui.UserInterface;
+import ui.GameUI;
 
 import java.util.List;
 
 public class PlayerControllerHuman implements PlayerController {
     private static final int YES = 1;
-    private final UserInterface UserInterface;
+    private final GameUI userInterface;
 
-    public PlayerControllerHuman(UserInterface UserInterface) {
-        this.UserInterface = UserInterface;
+    public PlayerControllerHuman(GameUI userInterface) {
+        this.userInterface = userInterface;
     }
 
     @Override
     public Action getTurnAction(GameEngine engine) {
-        int playCardChoice = UserInterface.promptPlayer("playCardPrompt");
+        int playCardChoice = userInterface.promptPlayer("playCardPrompt");
         if (playCardChoice == YES) {
-            int cardIndex = UserInterface.promptPlayer("chooseCardPrompt");
+            int cardIndex = userInterface.promptPlayer("chooseCardPrompt");
             return Action.playCard(cardIndex);
         }
         return Action.pass();
@@ -26,7 +26,7 @@ public class PlayerControllerHuman implements PlayerController {
 
     @Override
     public Action getNopeAction(GameEngine engine) {
-        int wantsToPlay = UserInterface.promptPlayer("chooseNope");
+        int wantsToPlay = userInterface.promptPlayer("chooseNope");
         if (wantsToPlay == YES) {
             return Action.nope();
         }
@@ -37,12 +37,12 @@ public class PlayerControllerHuman implements PlayerController {
     public int chooseIndex(GameEngine engine, int max) {
         int deckSize = engine.getDeckSize();
         while (true) {
-            int index = UserInterface.promptPlayer("whereToInsert");
+            int index = userInterface.promptPlayer("whereToInsert");
             if (index >= 0 && index <= deckSize) {
                 return index;
             }
-            UserInterface.displayMessage("indexOutOfBounds");
-            UserInterface.displayMessage("tryAgain");
+            userInterface.displayMessage("indexOutOfBounds");
+            userInterface.displayMessage("tryAgain");
         }
     }
 
@@ -52,11 +52,11 @@ public class PlayerControllerHuman implements PlayerController {
         List<Player> players = engine.getPlayers();
         
         while (true) {
-            int targetId = UserInterface.promptPlayer("targetPlayerId");
+            int targetId = userInterface.promptPlayer("targetPlayerId");
             
             if (targetId == currentPlayer.getId()) {
-                UserInterface.displayMessage("chosenSelfError");
-                UserInterface.displayMessage("tryAgain");
+                userInterface.displayMessage("chosenSelfError");
+                userInterface.displayMessage("tryAgain");
                 continue;
             }
             
@@ -72,8 +72,8 @@ public class PlayerControllerHuman implements PlayerController {
                 return targetId;
             }
             
-            UserInterface.displayMessage("invalidPlayerID");
-            UserInterface.displayMessage("tryAgain");
+            userInterface.displayMessage("invalidPlayerID");
+            userInterface.displayMessage("tryAgain");
         }
     }
 
@@ -83,12 +83,12 @@ public class PlayerControllerHuman implements PlayerController {
         int handSize = engine.getPlayerManager().getHandCount(currentPlayer);
         
         while (true) {
-            int cardIndex = UserInterface.promptPlayer("chooseCardPrompt");
+            int cardIndex = userInterface.promptPlayer("chooseCardPrompt");
             if (cardIndex >= 0 && cardIndex < handSize) {
                 return cardIndex;
             }
-            UserInterface.displayMessage("invalidCardIndex");
-            UserInterface.displayMessage("tryAgain");
+            userInterface.displayMessage("invalidCardIndex");
+            userInterface.displayMessage("tryAgain");
         }
     }
 
@@ -107,7 +107,7 @@ public class PlayerControllerHuman implements PlayerController {
             case "targetCardIndex":
                 return getValidatedCardIndex(engine, prompt);
             default:
-                return UserInterface.promptPlayer(prompt);
+                return userInterface.promptPlayer(prompt);
         }
     }
 
@@ -116,11 +116,11 @@ public class PlayerControllerHuman implements PlayerController {
         List<Player> players = engine.getPlayers();
         
         while (true) {
-            int targetId = UserInterface.promptPlayer(prompt);
+            int targetId = userInterface.promptPlayer(prompt);
             
             if (targetId == currentPlayer.getId()) {
-                UserInterface.displayMessage("chosenSelfError");
-                UserInterface.displayMessage("tryAgain");
+                userInterface.displayMessage("chosenSelfError");
+                userInterface.displayMessage("tryAgain");
                 continue;
             }
             
@@ -136,20 +136,20 @@ public class PlayerControllerHuman implements PlayerController {
                 return targetId;
             }
             
-            UserInterface.displayMessage("invalidPlayerID");
-            UserInterface.displayMessage("tryAgain");
+            userInterface.displayMessage("invalidPlayerID");
+            userInterface.displayMessage("tryAgain");
         }
     }
 
     private int getValidatedIndex(GameEngine engine) {
         int deckSize = engine.getDeckSize();
         while (true) {
-            int index = UserInterface.promptPlayer("whereToInsert");
+            int index = userInterface.promptPlayer("whereToInsert");
             if (index >= 0 && index <= deckSize) {
                 return index;
             }
-            UserInterface.displayMessage("indexOutOfBounds");
-            UserInterface.displayMessage("tryAgain");
+            userInterface.displayMessage("indexOutOfBounds");
+            userInterface.displayMessage("tryAgain");
         }
     }
 
@@ -158,12 +158,12 @@ public class PlayerControllerHuman implements PlayerController {
         int handSize = engine.getPlayerManager().getHandCount(currentPlayer);
         
         while (true) {
-            int cardIndex = UserInterface.promptPlayer(prompt);
+            int cardIndex = userInterface.promptPlayer(prompt);
             if (cardIndex >= 0 && cardIndex < handSize) {
                 return cardIndex;
             }
-            UserInterface.displayMessage("invalidCardIndex");
-            UserInterface.displayMessage("tryAgain");
+            userInterface.displayMessage("invalidCardIndex");
+            userInterface.displayMessage("tryAgain");
         }
     }
 }
