@@ -1,7 +1,9 @@
 package domain.game;
 
 import domain.cards.Card;
+import domain.cards.implementations.CatCard;
 import domain.cards.implementations.ExplodingKittenCard;
+import domain.cards.implementations.FeralCatCard;
 import domain.cards.implementations.ImplodingKittenCard;
 import domain.player.Player;
 import domain.player.PlayerManager;
@@ -76,6 +78,11 @@ public class Turn {
             } else {
                 currentPlayer = game.getCurrentPlayer();
                 PlayerManager.removeCard(currentPlayer, cardIndex);
+                
+                if (selectedCard instanceof CatCard || selectedCard instanceof FeralCatCard) {
+                    removeSecondCatCard(currentPlayer, selectedCard);
+                }
+                
                 game.setPlayer(currentPlayer);
             }
         } catch (IndexOutOfBoundsException e) {
@@ -83,6 +90,23 @@ public class Turn {
         }
         
         return false;
+    }
+
+    private void removeSecondCatCard(Player player, Card selectedCard) {
+        String cardName = selectedCard.getName();
+        int secondCardIndex = PlayerManager.hasCard(player, cardName);
+        
+        if (secondCardIndex != -1) {
+            PlayerManager.removeCard(player, secondCardIndex);
+        } else if (selectedCard instanceof FeralCatCard) {
+            for (CatCard.CatCardType catType : CatCard.CatCardType.values()) {
+                int catIndex = PlayerManager.hasCard(player, catType.cardName());
+                if (catIndex != -1) {
+                    PlayerManager.removeCard(player, catIndex);
+                    break;
+                }
+            }
+        }
     }
 
     private boolean executeCardAction(Card selectedCard) {

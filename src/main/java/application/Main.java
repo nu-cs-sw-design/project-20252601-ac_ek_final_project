@@ -16,6 +16,9 @@ import java.util.Set;
 public class Main {
     private static final int ENGLISH = 0;
     private static final int FRENCH = 1;
+    private static final int SPANISH = 2;
+    private static final int GERMAN = 3;
+    private static final int JAPANESE = 4;
 
     public static void main(String[] args) {
         GameUI ui = selectUI(args);
@@ -23,12 +26,25 @@ public class Main {
 
         ui.displayMessage("welcomeMessage");
         int language = -1;
-        while (language != FRENCH && language != ENGLISH) {
+        while (language < ENGLISH || language > JAPANESE) {
             language = ui.promptPlayer("language");
         }
 
-        if (language == FRENCH) {
-            ui.changeLanguage("fr", "Fr");
+        switch (language) {
+            case FRENCH:
+                ui.changeLanguage("fr", "FR");
+                break;
+            case SPANISH:
+                ui.changeLanguage("es", "ES");
+                break;
+            case GERMAN:
+                ui.changeLanguage("de", "DE");
+                break;
+            case JAPANESE:
+                ui.changeLanguage("ja", "JP");
+                break;
+            default:
+                break;
         }
 
         GameConfiguration config = getGameConfiguration(ui);

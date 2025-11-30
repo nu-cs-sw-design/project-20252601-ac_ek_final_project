@@ -101,4 +101,44 @@ public class ConsoleUI implements GameUI {
         this.locale = new Locale(language, country);
         this.resourceBundle = ResourceBundle.getBundle("messages", locale);
     }
+    
+    @Override
+    public int promptTurnAction(List<CardInfo> cards) {
+        System.out.println(resourceBundle.getString("currentHand"));
+        
+        for (CardInfo card : cards) {
+            String playableMarker = card.isPlayable() ? "[PLAYABLE]" : "[------]";
+            System.out.printf("  %s [%d] %s%n", playableMarker, card.index(), card.name());
+        }
+        
+        System.out.println();
+        System.out.println("Enter card index to play, or -1 to draw a card:");
+        
+        while (true) {
+            try {
+                int input = scanner.nextInt();
+                scanner.nextLine();
+                
+                if (input == -1) {
+                    return -1;
+                }
+                
+                for (CardInfo card : cards) {
+                    if (card.index() == input) {
+                        if (card.isPlayable()) {
+                            return input;
+                        } else {
+                            System.out.println("That card cannot be played. Choose a playable card or -1 to draw:");
+                            break;
+                        }
+                    }
+                }
+                
+                System.out.println("Invalid card index. Try again:");
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input - please enter an integer");
+                scanner.nextLine();
+            }
+        }
+    }
 }

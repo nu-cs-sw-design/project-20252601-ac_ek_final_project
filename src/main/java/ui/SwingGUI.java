@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -10,11 +11,32 @@ public class SwingGUI implements GameUI {
     private JFrame mainFrame;
     private JTextArea messageArea;
     private JPanel buttonPanel;
+    private JPanel handPanel;
     
     private Locale locale;
     private ResourceBundle resourceBundle;
     
     private final BlockingQueue<Integer> inputQueue = new LinkedBlockingQueue<>();
+    
+    private static final Map<String, Color> CARD_COLORS = new HashMap<>();
+    static {
+        CARD_COLORS.put("Exploding Kitten", new Color(220, 53, 69));
+        CARD_COLORS.put("Imploding Kitten", new Color(255, 140, 0));
+        CARD_COLORS.put("Defuse", new Color(40, 167, 69));
+        CARD_COLORS.put("Nope", new Color(0, 123, 255));
+        CARD_COLORS.put("Attack", new Color(255, 193, 7));
+        CARD_COLORS.put("Skip", new Color(23, 162, 184));
+        CARD_COLORS.put("Favor", new Color(111, 66, 193));
+        CARD_COLORS.put("Shuffle", new Color(108, 117, 125));
+        CARD_COLORS.put("See The Future", new Color(32, 201, 151));
+        CARD_COLORS.put("Streaking Kitten", new Color(253, 126, 20));
+        CARD_COLORS.put("Feral Cat", new Color(173, 181, 189));
+        CARD_COLORS.put("Taco Cat", new Color(255, 205, 86));
+        CARD_COLORS.put("Cattermelon", new Color(75, 192, 192));
+        CARD_COLORS.put("Hairy Potato Cat", new Color(153, 102, 255));
+        CARD_COLORS.put("Rainbow Ralphing Cat", new Color(255, 99, 132));
+        CARD_COLORS.put("Bearded Cat", new Color(201, 203, 207));
+    }
     
     public SwingGUI() {
         this.locale = new Locale("en", "US");
@@ -34,7 +56,7 @@ public class SwingGUI implements GameUI {
     private void createAndShowGUI() {
         mainFrame = new JFrame("Exploding Kittens");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setSize(1024, 768);
+        mainFrame.setSize(1200, 800);
         mainFrame.setLayout(new BorderLayout());
         
         messageArea = new JTextArea();
@@ -45,11 +67,21 @@ public class SwingGUI implements GameUI {
         JScrollPane scrollPane = new JScrollPane(messageArea);
         mainFrame.add(scrollPane, BorderLayout.CENTER);
         
+        handPanel = new JPanel();
+        handPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        handPanel.setBackground(new Color(25, 28, 34));
+        handPanel.setPreferredSize(new Dimension(1200, 200));
+        JScrollPane handScrollPane = new JScrollPane(handPanel);
+        handScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        handScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        handScrollPane.setPreferredSize(new Dimension(1200, 220));
+        mainFrame.add(handScrollPane, BorderLayout.SOUTH);
+        
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(new Color(33, 37, 43));
-        buttonPanel.setPreferredSize(new Dimension(1024, 100));
-        mainFrame.add(buttonPanel, BorderLayout.SOUTH);
+        buttonPanel.setPreferredSize(new Dimension(1200, 60));
+        mainFrame.add(buttonPanel, BorderLayout.NORTH);
         
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setVisible(true);
@@ -86,7 +118,134 @@ public class SwingGUI implements GameUI {
     public void clearScreen() {
         SwingUtilities.invokeLater(() -> {
             messageArea.setText("");
+            handPanel.removeAll();
+            handPanel.revalidate();
+            handPanel.repaint();
         });
+    }
+    
+    private Color getCardColor(String cardName) {
+        for (Map.Entry<String, Color> entry : CARD_COLORS.entrySet()) {
+            if (cardName.contains(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return new Color(100, 100, 100);
+    }
+    
+    private JPanel createCardPanel(CardInfo card) {
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BorderLayout());
+        cardPanel.setPreferredSize(new Dimension(100, 150));
+        
+        Color baseColor = getCardColor(card.name());
+        
+        if (card.isPlayable()) {
+            cardPanel.setBackground(baseColor);
+            cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(50, 205, 50), 3),
+                BorderFactory.createLineBorder(Color.BLACK, 1)
+            ));
+            cardPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            
+            cardPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    inputQueue.offer(card.index());
+                }
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent e) {
+                    cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(0, 255, 0), 4),
+                        BorderFactory.createLineBorder(Color.WHITE, 2)
+                    ));
+                }
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent e) {
+                    cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(50, 205, 50), 3),
+                        BorderFactory.createLineBorder(Color.BLACK, 1)
+                    ));
+                }
+            });
+        } else {
+            cardPanel.setBackground(new Color(
+                (int)(baseColor.getRed() * 0.4),
+                (int)(baseColor.getGreen() * 0.4),
+                (int)(baseColor.getBlue() * 0.4)
+            ));
+            cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(100, 100, 100), 2),
+                BorderFactory.createLineBorder(Color.DARK_GRAY, 1)
+            ));
+        }
+        
+        JLabel nameLabel = new JLabel("<html><center>" + card.name() + "</center></html>");
+        nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        nameLabel.setForeground(card.isPlayable() ? Color.WHITE : Color.GRAY);
+        cardPanel.add(nameLabel, BorderLayout.CENTER);
+        
+        JLabel indexLabel = new JLabel("[" + card.index() + "]");
+        indexLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        indexLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+        indexLabel.setForeground(card.isPlayable() ? Color.WHITE : Color.GRAY);
+        cardPanel.add(indexLabel, BorderLayout.SOUTH);
+        
+        JLabel statusLabel = new JLabel(card.isPlayable() ? "✓ PLAY" : "✗");
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 10));
+        statusLabel.setForeground(card.isPlayable() ? new Color(50, 255, 50) : new Color(150, 150, 150));
+        cardPanel.add(statusLabel, BorderLayout.NORTH);
+        
+        return cardPanel;
+    }
+    
+    @Override
+    public int promptTurnAction(List<CardInfo> cards) {
+        inputQueue.clear();
+        
+        SwingUtilities.invokeLater(() -> {
+            handPanel.removeAll();
+            
+            for (CardInfo card : cards) {
+                JPanel cardPanel = createCardPanel(card);
+                handPanel.add(cardPanel);
+            }
+            
+            handPanel.revalidate();
+            handPanel.repaint();
+            
+            buttonPanel.removeAll();
+            JButton drawButton = new JButton("Draw Card (End Turn)");
+            drawButton.setFont(new Font("Arial", Font.BOLD, 14));
+            drawButton.setBackground(new Color(220, 53, 69));
+            drawButton.setForeground(Color.WHITE);
+            drawButton.setFocusPainted(false);
+            drawButton.setPreferredSize(new Dimension(200, 40));
+            drawButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            drawButton.addActionListener(e -> inputQueue.offer(-1));
+            buttonPanel.add(drawButton);
+            
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        });
+        
+        appendMessage(resourceBundle.getString("currentHand"));
+        appendMessage("Click a playable card (green border) or Draw Card to end your turn.");
+        
+        try {
+            return inputQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return -1;
+        } finally {
+            SwingUtilities.invokeLater(() -> {
+                buttonPanel.removeAll();
+                buttonPanel.revalidate();
+                buttonPanel.repaint();
+            });
+        }
     }
     
     private JButton createStyledButton(String text, int value) {
@@ -163,8 +322,8 @@ public class SwingGUI implements GameUI {
                 new int[]{0, 1});
         } else if (promptKey.equals("language")) {
             return showButtonsAndWait(message,
-                new String[]{"English", "Français"},
-                new int[]{0, 1});
+                new String[]{"English", "Français", "Español", "Deutsch", "日本語"},
+                new int[]{0, 1, 2, 3, 4});
         } else if (promptKey.equals("enterNumHumanPlayers")) {
             return showNumberButtons(message, 0, 10);
         } else if (promptKey.equals("enterNumAIPlayers")) {

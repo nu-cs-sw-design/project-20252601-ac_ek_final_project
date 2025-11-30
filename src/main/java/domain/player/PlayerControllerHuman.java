@@ -1,9 +1,14 @@
 package domain.player;
 
+import domain.cards.Card;
+import domain.cards.implementations.CatCard;
+import domain.cards.implementations.FeralCatCard;
 import domain.game.Action;
 import domain.game.GameEngine;
+import ui.CardInfo;
 import ui.GameUI;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerControllerHuman implements PlayerController {
@@ -16,12 +21,70 @@ public class PlayerControllerHuman implements PlayerController {
 
     @Override
     public Action getTurnAction(GameEngine engine) {
-        int playCardChoice = userInterface.promptPlayer("playCardPrompt");
-        if (playCardChoice == YES) {
-            int cardIndex = userInterface.promptPlayer("chooseCardPrompt");
-            return Action.playCard(cardIndex);
+        Player currentPlayer = engine.getCurrentPlayer();
+        List<Card> hand = engine.getPlayerManager().getHand(currentPlayer);
+        
+        List<CardInfo> cardInfos = new ArrayList<>();
+        for (int i = 0; i < hand.size(); i++) {
+            Card card = hand.get(i);
+            boolean playable = isCardPlayable(card, hand);
+            cardInfos.add(new CardInfo(i, card.getName(), playable));
+        }
+        
+        int result = userInterface.promptTurnAction(cardInfos);
+        
+        if (result >= 0) {
+            return Action.playCard(result);
         }
         return Action.pass();
+    }
+    
+    private boolean isCardPlayable(Card card, List<Card> hand) {
+        String cardName = card.getName();
+        
+        if (cardName.equals("Defuse") || cardName.equals("Nope") || cardName.equals("Streaking Kitten")) {
+            return false;
+        }
+        
+        if (card instanceof CatCard) {
+            return hasTwoOfName(hand, cardName);
+        }
+        
+        if (card instanceof FeralCatCard) {
+            if (hasTwoOfName(hand, "Feral Cat")) {
+                return true;
+            }
+            for (CatCard.CatCardType catType : CatCard.CatCardType.values()) {
+                if (hasCardWithName(hand, catType.cardName())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean hasTwoOfName(List<Card> hand, String cardName) {
+        int count = 0;
+        for (Card c : hand) {
+            if (c.getName().equals(cardName)) {
+                count++;
+                if (count >= 2) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private boolean hasCardWithName(List<Card> hand, String cardName) {
+        for (Card c : hand) {
+            if (c.getName().equals(cardName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
