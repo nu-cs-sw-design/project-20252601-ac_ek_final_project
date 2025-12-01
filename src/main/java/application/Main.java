@@ -63,6 +63,9 @@ public class Main {
         game.setPlayers(players);
         deckManager.addRemainingCards(deck, config.getPlayerCount(), config.getExpansionIds());
 
+        gameEngine.setDeck(deck);
+        gameEngine.setPlayers(players);
+
         GameCreator gameCreator = new GameCreator(gameEngine, ui);
         gameCreator.startGame();
         

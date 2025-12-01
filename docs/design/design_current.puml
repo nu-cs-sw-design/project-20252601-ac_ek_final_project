@@ -1,0 +1,397 @@
+@startuml
+package application {
+    class Main {
+        +{static} main(String[]): void
+        -{static} selectUI(String[]): GameUI
+        -{static} getGameConfiguration(GameUI): GameConfiguration
+    }
+
+    class GameCreator {
+        -userInterface: GameUI
+        -gameEngine: GameEngine
+        +GameCreator(GameEngine, GameUI)
+        +startGame(): void
+    }
+}
+
+package ui {
+    interface GameUI {
+        +displayMessage(String): void
+        +displayFormattedMessage(String, Object...): void
+        +clearScreen(): void
+        +promptPlayer(String): int
+        +promptExpansionPackNumbers(): Set<Integer>
+        +changeLanguage(String, String): void
+        +promptTurnAction(List<CardInfo>): int
+        +initialize(): void
+        +shutdown(): void
+    }
+
+    class ConsoleUI {
+        -scanner: Scanner
+        -messages: ResourceBundle
+        +ConsoleUI()
+    }
+
+    class SwingGUI {
+        -frame: JFrame
+        -messages: ResourceBundle
+        +SwingGUI()
+    }
+
+    class UIRegistry {
+        -{static} registry: Map<String, Supplier<GameUI>>
+        +{static} register(String, Supplier<GameUI>): void
+        +{static} create(String): Optional<GameUI>
+        +{static} createDefault(): GameUI
+        +{static} isRegistered(String): boolean
+        +{static} getAvailableTypes(): Set<String>
+    }
+
+    class CardInfo {
+        -index: int
+        -name: String
+        -visible: boolean
+        +CardInfo(int, String, boolean)
+        +getIndex(): int
+        +getName(): String
+        +isVisible(): boolean
+    }
+}
+
+package "domain.game" {
+    class Game {
+        -deck: Deck
+        -players: List<Player>
+        -isGameOver: boolean
+        +Game()
+        +Game(Game)
+        +getDeck(): Deck
+        +setDeck(Deck): void
+        +getPlayers(): List<Player>
+        +setPlayers(List<Player>): void
+        +isGameOver(): boolean
+        +setGameOver(boolean): void
+    }
+
+    class GameEngine {
+        -observers: List<GameUI>
+        -userInterface: GameUI
+        -expansionIds: Set<String>
+        -PlayerManager: PlayerManager
+        -deckManager: DeckManager
+        -nopeOperation: NopeOperation
+        -game: Game
+        +GameEngine(GameUI, DeckManager, PlayerManager, NopeOperation, Game, Set<String>)
+        +takeTurn(): void
+        +notifyMessage(String): void
+        +notifyFormattedMessage(String, Object...): void
+        +getUserInterface(): GameUI
+        +getCurrentPlayer(): Player
+        +getPlayer(int): Player
+        +deletePlayer(int): void
+        +getDeck(): Deck
+        +drawTopCard(): Card
+        +getWinner(): Player
+        +isGameOver(): Boolean
+        +setGameOver(Boolean): void
+    }
+
+    class GameContext {
+        -gameEngine: GameEngine
+        -cardManager: CardManager
+        +GameContext(GameEngine)
+        +displayMessage(String): void
+        +promptPlayer(String): int
+        +getCurrentPlayer(): Player
+        +getPlayer(int): Player
+        +getDeck(): Deck
+        +setDeck(Deck): void
+        +getPlayers(): List<Player>
+        +setPlayers(List<Player>): void
+        +getPlayerManager(): PlayerManager
+        +getDeckManager(): DeckManager
+        +getCardManager(): CardManager
+    }
+
+    class GameConfiguration {
+        -humanPlayerCount: int
+        -aiPlayerCount: int
+        -expansionIds: Set<String>
+        +GameConfiguration(int, int, Set<String>)
+        +getPlayerCount(): int
+        +getHumanPlayerCount(): int
+        +getAIPlayerCount(): int
+        +getExpansionIds(): Set<String>
+        +{static} isValidExpansionNumber(int): boolean
+        +{static} getExpansionId(int): String
+        +{static} getExpansionDisplayName(int): String
+    }
+
+    class Turn {
+        -game: GameEngine
+        -nopeOperation: NopeOperation
+        -PlayerManager: PlayerManager
+        +Turn(GameEngine, NopeOperation)
+        +executeTurn(): void
+        -initializeTurn(): void
+        -handleCardPlayingPhase(): void
+        -handleCardDrawingPhase(): void
+        -finalizeTurn(): void
+    }
+
+    class NopeOperation {
+        +checkForNopeInterruption(GameEngine, Card): boolean
+    }
+
+    class Action {
+        -type: Type
+        -cardIndex: int
+        +Action(Type, int)
+        +getType(): Type
+        +getCardIndex(): int
+    }
+
+    enum "Action.Type" as ActionType {
+        PLAY_CARD
+        PASS
+    }
+}
+
+package "domain.player" {
+    class Player {
+        -id: int
+        -hand: Hand
+        -numberOfTurns: int
+        -visibility: boolean
+        -hasNope: boolean
+        -isAI: boolean
+        -controller: PlayerController
+        +Player(int, ArrayList<Card>)
+        +Player(Player)
+        +getId(): int
+        +getHand(): ArrayList<Card>
+        +setHand(ArrayList<Card>): void
+        +getNumberOfTurns(): int
+        +setNumberOfTurns(int): void
+        +getHandVisibility(): boolean
+        +setHandVisibility(boolean): void
+        +getHasNope(): Boolean
+        +setHasNope(boolean): void
+        +isAI(): boolean
+        +setAI(boolean): void
+        +getController(): PlayerController
+        +setController(PlayerController): void
+    }
+
+    class Hand {
+        -cards: List<Card>
+        -visibleCards: List<Card>
+        +Hand()
+        +Hand(List<Card>)
+        +Hand(Hand)
+        +getCards(): List<Card>
+        +addCard(Card): void
+        +removeCard(int): void
+        +shuffle(): void
+        +isEmpty(): boolean
+        +size(): int
+    }
+
+    interface PlayerController {
+        +getDecision(GameEngine, String): int
+        +getTurnAction(GameEngine): Action
+    }
+
+    class PlayerControllerHuman {
+        -ui: GameUI
+        +PlayerControllerHuman(GameUI)
+    }
+
+    class PlayerControllerAI {
+        -aiAgent: AIAgent
+        +PlayerControllerAI()
+    }
+
+    class AIAgent {
+        +makeDecision(GameEngine, String): int
+        +decideTurnAction(GameEngine): Action
+    }
+
+    class PlayerManager {
+        +PlayerManager()
+        +PlayerManager(PlayerManager)
+        +initializePlayers(GameConfiguration, Deck, GameUI): List<Player>
+        +getCurrentPlayer(Game): Player
+        +getPlayer(Game, int): Player
+        +setCurrentPlayer(Game, Player): void
+        +eliminatePlayer(Game, int): void
+        +nextPlayer(Game): void
+        +getPlayerCount(Game): int
+        +hasCard(Player, String): int
+        +chooseCard(Player, int): Card
+        +removeCard(Player, int): void
+        +addCard(Player, Card): void
+    }
+
+    class PlayerCreator {
+        +createHumanPlayer(int, Deck, GameUI): Player
+        +createAIPlayer(int, Deck): Player
+    }
+}
+
+package "domain.deck" {
+    class Deck {
+        -drawPile: DrawPile
+        +Deck()
+        +Deck(Deck)
+        +numberOfCards(): int
+        +addCard(Card): void
+        +drawTopCard(): Card
+        +drawBottomCard(): Card
+        +shuffle(): void
+        +isEmpty(): boolean
+    }
+
+    class DrawPile {
+        -cards: List<Card>
+        +DrawPile()
+        +DrawPile(List<Card>)
+        +add(Card): void
+        +removeTop(): Card
+        +removeBottom(): Card
+        +shuffle(): void
+        +size(): int
+        +isEmpty(): boolean
+        +getAll(): List<Card>
+    }
+
+    class DeckCreator {
+        +createDeck(int, Set<String>): Deck
+    }
+
+    class DeckManager {
+        -deckCreator: DeckCreator
+        +DeckManager()
+        +DeckManager(DeckCreator)
+        +DeckManager(DeckManager)
+        +initializeDeck(int, Set<String>): Deck
+        +addRemainingCards(Deck, int, Set<String>): void
+        +drawTopCard(Deck): Card
+        +getDeckSize(Deck): int
+        +peekTopDeck(Deck, int): List<Card>
+        +alterTopDeck(Deck, List<Card>, List<Integer>): void
+        +insertCardAtIndex(Deck, Card, int): void
+    }
+}
+
+package "domain.cards" {
+    abstract class Card {
+        +{abstract} executeEffect(GameContext): void
+        +{abstract} getName(): String
+        +playCard(GameEngine): void
+    }
+
+    class CardManager {
+        +CardManager()
+        +CardManager(CardManager)
+        +chooseValidTargetPlayer(GameContext, String): Player
+        +removeCardFromCurrentPlayer(GameContext, String): void
+        +eliminatePlayer(GameContext, Player): void
+        +insertCardAtValidIndex(GameContext, Card): void
+        +takeCardFromPlayer(GameContext, Player): Card
+        +calculateAttackTurns(int, int): int
+        +collectUniqueIndexes(GameContext, int): List<Integer>
+    }
+}
+
+package "domain.cards.implementations" {
+    class AttackCard extends Card
+    class SkipCard extends Card
+    class ShuffleCard extends Card
+    class FavorCard extends Card
+    class NopeCard extends Card
+    class DefuseCard extends Card
+    class ExplodingKittenCard extends Card
+    class SeeTheFutureCard extends Card
+    class CatCard extends Card
+    class FeralCatCard extends Card
+    class TargetedAttackCard extends Card
+    class ReverseCard extends Card
+    class DrawFromTheBottomCard extends Card
+    class AlterTheFutureCard extends Card
+    class ImplodingKittenCard extends Card
+    class StreakingKittenCard extends Card
+    class CatomicBombCard extends Card
+    class GarbageCollectionCard extends Card
+    class SuperSkipCard extends Card
+    class MarkCard extends Card
+    class SwapTopAndBottomCard extends Card
+    class CurseOfTheCatButtCard extends Card
+}
+
+package "domain.cards.expansions" {
+    interface ExpansionStrategy {
+        +getId(): String
+        +getDisplayName(): String
+        +getSelectionNumber(): int
+        +addCardsToDeck(Deck, int): void
+        +addPostDealCards(Deck, int): void
+        +getMaxPlayers(): int
+        +isBaseGameModifier(): boolean
+        +getAdditionalExplodingKittens(): int
+        +getAdditionalDefuseCards(int): int
+    }
+
+    class ExpansionRegistry {
+        -{static} expansions: Map<String, ExpansionStrategy>
+        +{static} register(ExpansionStrategy): void
+        +{static} get(String): ExpansionStrategy
+        +{static} getAll(): Collection<ExpansionStrategy>
+        +{static} getByNumber(int): ExpansionStrategy
+    }
+
+    class BaseGameExpansion implements ExpansionStrategy
+    class ImplodingKittensExpansion implements ExpansionStrategy
+    class StreakingKittensExpansion implements ExpansionStrategy
+    class PartyPackExpansion implements ExpansionStrategy
+}
+
+Main --> GameCreator
+Main --> GameEngine
+Main --> UIRegistry
+GameCreator --> GameEngine
+GameCreator --> GameUI
+GameEngine --> Game
+GameEngine --> PlayerManager
+GameEngine --> DeckManager
+GameEngine --> NopeOperation
+GameEngine --> Turn
+GameEngine --> GameUI
+Turn --> GameEngine
+Turn --> NopeOperation
+Turn --> PlayerManager
+GameContext --> GameEngine
+GameContext --> CardManager
+Game --> Deck
+Game --> Player
+Player --> Hand
+Player --> PlayerController
+PlayerController <|.. PlayerControllerHuman
+PlayerController <|.. PlayerControllerAI
+PlayerControllerHuman --> GameUI
+PlayerControllerAI --> AIAgent
+Hand --> Card
+Deck --> DrawPile
+DrawPile --> Card
+DeckManager --> DeckCreator
+DeckManager --> Deck
+DeckCreator --> ExpansionRegistry
+PlayerManager --> PlayerCreator
+PlayerManager --> Player
+PlayerCreator --> Player
+Card --> GameContext
+ConsoleUI ..|> GameUI
+SwingGUI ..|> GameUI
+Action --> ActionType
+@enduml

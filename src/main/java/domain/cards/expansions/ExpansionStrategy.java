@@ -10,7 +10,7 @@ public interface ExpansionStrategy {
     default void addPostDealCards(Deck deck, int playerCount) {
     }
     default int getMaxPlayers() {
-        return 5; // Default base game max
+        return 5;
     }
     default boolean isBaseGameModifier() {
         return false;

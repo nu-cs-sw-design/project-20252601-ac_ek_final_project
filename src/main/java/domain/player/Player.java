@@ -45,7 +45,7 @@ public class Player {
         this.isAI = isAI;
     }
 
-    public Hand getHandObject() {
+    Hand getHandObject() {
         return hand;
     }
 

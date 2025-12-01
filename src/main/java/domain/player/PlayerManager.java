@@ -22,6 +22,10 @@ public class PlayerManager {
         this.playerCreator = new PlayerCreator();
     }
 
+    public PlayerManager(PlayerManager other) {
+        this.playerCreator = new PlayerCreator();
+    }
+
     public List<Player> initializePlayers(GameConfiguration config, Deck deck, GameUI userInterface) {
         return playerCreator.createPlayers(config, deck, userInterface);
     }

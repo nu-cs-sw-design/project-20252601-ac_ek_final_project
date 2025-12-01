@@ -37,7 +37,7 @@ public class Deck {
         return drawPile.isEmpty();
     }
 
-    public DrawPile getDrawPile() {
+    DrawPile getDrawPile() {
         return drawPile;
     }
 }

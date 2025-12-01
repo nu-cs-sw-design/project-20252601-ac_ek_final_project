@@ -30,14 +30,30 @@ public class GameEngine {
                       NopeOperation nopeOperation,
                       Game game,
                       Set<String> expansionIds) {
-        this.userInterface = userInterface;
+        final GameUI realUI = userInterface;
+        this.userInterface = new GameUI() {
+            @Override
+            public void displayMessage(String key) { realUI.displayMessage(key); }
+            @Override
+            public void displayFormattedMessage(String key, Object... args) { realUI.displayFormattedMessage(key, args); }
+            @Override
+            public void clearScreen() { realUI.clearScreen(); }
+            @Override
+            public int promptPlayer(String promptKey) { return realUI.promptPlayer(promptKey); }
+            @Override
+            public java.util.Set<Integer> promptExpansionPackNumbers() { return realUI.promptExpansionPackNumbers(); }
+            @Override
+            public void changeLanguage(String language, String country) { realUI.changeLanguage(language, country); }
+        };
+
         this.observers = new ArrayList<>();
-        this.observers.add(userInterface);
-        this.deckManager = deckManager;
-        this.PlayerManager = PlayerManager;
+        this.observers.add(this.userInterface);
+
+        this.deckManager = deckManager == null ? null : new DeckManager(deckManager);
+        this.PlayerManager = PlayerManager == null ? null : new PlayerManager(PlayerManager);
         this.nopeOperation = nopeOperation;
-        this.game = game;
-        this.expansionIds = expansionIds;
+        this.game = game == null ? null : new Game(game);
+        this.expansionIds = expansionIds == null ? java.util.Collections.emptySet() : new java.util.HashSet<>(expansionIds);
     }
 
     public void takeTurn() {
@@ -64,7 +80,38 @@ public class GameEngine {
     }
 
     public GameUI getUserInterface() {
-        return userInterface;
+        final GameUI ui = userInterface;
+        return new GameUI() {
+            @Override
+            public void displayMessage(String key) {
+                ui.displayMessage(key);
+            }
+
+            @Override
+            public void displayFormattedMessage(String key, Object... args) {
+                ui.displayFormattedMessage(key, args);
+            }
+
+            @Override
+            public void clearScreen() {
+                ui.clearScreen();
+            }
+
+            @Override
+            public int promptPlayer(String promptKey) {
+                return ui.promptPlayer(promptKey);
+            }
+
+            @Override
+            public java.util.Set<Integer> promptExpansionPackNumbers() {
+                return ui.promptExpansionPackNumbers();
+            }
+
+            @Override
+            public void changeLanguage(String language, String country) {
+                ui.changeLanguage(language, country);
+            }
+        };
     }
 
     public void deletePlayer(int id) {
@@ -112,11 +159,18 @@ public class GameEngine {
     }
 
     public Card drawTopCard() {
-        return deckManager.drawTopCard(game.getDeck());
+        Deck d = game.getDeck();
+        if (d == null) {
+            throw new UnsupportedOperationException("deckEmpty");
+        }
+        Card card = deckManager.drawTopCard(d);
+        game.setDeck(d);
+        return card;
     }
 
     public boolean isDeckEmpty() {
-        return game.getDeck().isEmpty();
+        Deck d = game.getDeck();
+        return d == null || d.isEmpty();
     }
 
     public List<Player> getPlayers() {
@@ -179,18 +233,22 @@ public class GameEngine {
     }
 
     public int getDeckSize() {
-        return deckManager.getDeckSize(game.getDeck());
+        Deck d = game.getDeck();
+        if (d == null) {
+            return 0;
+        }
+        return deckManager.getDeckSize(d);
     }
     
     public Game getGame() {
-        return game;
+        return new Game(game);
     }
 
     public PlayerManager getPlayerManager() {
-        return PlayerManager;
+        return new PlayerManager(PlayerManager);
     }
 
     public DeckManager getDeckManager() {
-        return deckManager;
+        return new DeckManager(deckManager);
     }
 }

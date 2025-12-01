@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerCreator {
-    private final int INITIAL_CARDS_WITH_EXPANSIONS = 8;
-    private final int INITIAL_CARDS_WITHOUT_EXPANSIONS = 4;
+    private static final int INITIAL_CARDS_WITH_EXPANSIONS = 8;
+    private static final int INITIAL_CARDS_WITHOUT_EXPANSIONS = 4;
 
     public List<Player> createPlayers(GameConfiguration config, Deck deck, GameUI userInterface) {
         int numberOfPlayers = config.getPlayerCount();

@@ -1,6 +1,7 @@
 package ui;
 
 import java.io.InputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -34,18 +35,25 @@ public class ConsoleUI implements GameUI {
 
     @Override
     public void clearScreen() {
-        try {
-            String os = System.getProperty("os.name").toLowerCase();
-            if (os.contains("windows")) {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("windows")) {
+            try {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } else {
-                System.out.print("\033[H\033[2J");
-                System.out.flush();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                // fallback to printing blank lines
+                for (int i = 0; i < 50; i++) {
+                    System.out.println();
+                }
+            } catch (IOException e) {
+                // couldn't run clear command, fallback to printing blank lines
+                for (int i = 0; i < 50; i++) {
+                    System.out.println();
+                }
             }
-        } catch (Exception e) {
-            for (int i = 0; i < 50; i++) {
-                System.out.println();
-            }
+        } else {
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
         }
     }
 

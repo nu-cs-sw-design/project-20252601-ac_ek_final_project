@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Hand {
-    private final int TWO_OF_A_KIND_COUNT = 2;
+    private static final int TWO_OF_A_KIND_COUNT = 2;
 
     private final List<Card> cards;
     private final List<Card> visibleCards;

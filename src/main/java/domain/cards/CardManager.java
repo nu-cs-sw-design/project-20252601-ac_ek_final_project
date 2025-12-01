@@ -8,6 +8,12 @@ import domain.player.PlayerManager;
 
 public class CardManager {
 
+    public CardManager() {
+    }
+
+    public CardManager(CardManager other) {
+    }
+
     public Player chooseValidTargetPlayer(GameContext context, String promptKey) {
         Player currentPlayer = context.getCurrentPlayer();
         Player chosenPlayer = null;

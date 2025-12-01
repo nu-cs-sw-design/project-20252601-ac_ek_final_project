@@ -9,6 +9,9 @@ import domain.player.PlayerManager;
 
 import java.util.List;
 
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    value = "EI_EXPOSE_REP2", 
+    justification = "GameContext intentionally stores engine reference for delegation")
 public class GameContext {
     private final GameEngine gameEngine;
     private final CardManager cardManager;
@@ -99,6 +102,6 @@ public class GameContext {
     }
 
     public CardManager getCardManager() {
-        return cardManager;
+        return new CardManager(cardManager);
     }
 }

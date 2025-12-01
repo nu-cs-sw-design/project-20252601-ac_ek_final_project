@@ -16,20 +16,44 @@ public class Game {
         this.isGameOver = false;
     }
 
+    public Game(Game other) {
+        if (other == null) {
+            this.players = new ArrayList<>();
+            this.isGameOver = false;
+            this.deck = null;
+            return;
+        }
+        this.isGameOver = other.isGameOver;
+        this.deck = other.deck == null ? null : new Deck(other.deck);
+        this.players = new ArrayList<>();
+        if (other.players != null) {
+            for (Player p : other.players) {
+                this.players.add(new Player(p));
+            }
+        }
+    }
+
     public Deck getDeck() {
-        return deck;
+        return deck == null ? null : new Deck(deck);
     }
 
     public void setDeck(Deck deck) {
-        this.deck = deck;
+        this.deck = deck == null ? null : new Deck(deck);
     }
 
     public List<Player> getPlayers() {
-        return players;
+        return new ArrayList<>(players);
     }
 
     public void setPlayers(List<Player> players) {
-        this.players = players;
+        if (players == null) {
+            this.players = new ArrayList<>();
+            return;
+        }
+        this.players = new ArrayList<>();
+        for (Player p : players) {
+            this.players.add(new Player(p));
+        }
     }
 
     public boolean isGameOver() {

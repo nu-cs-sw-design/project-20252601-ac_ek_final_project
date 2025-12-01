@@ -1,5 +1,6 @@
 package domain.deck;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import domain.cards.Card;
 import domain.cards.implementations.ExplodingKittenCard;
 
@@ -11,8 +12,18 @@ import java.util.Set;
 public class DeckManager {
     private final DeckCreator deckCreator;
 
+    @SuppressFBWarnings(
+        value = "EI_EXPOSE_REP2", 
+        justification = "DeckCreator is intended to be shared; copying not practical")
     public DeckManager(DeckCreator deckCreator) {
         this.deckCreator = deckCreator;
+    }
+
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+        value = "EI_EXPOSE_REP2", 
+        justification = "DeckCreator is intended to be shared; copying not practical")
+    public DeckManager(DeckManager other) {
+        this.deckCreator = other == null ? null : other.deckCreator;
     }
 
     public Deck initializeDeck(int numberOfPlayers, Set<String> expansionIds) {

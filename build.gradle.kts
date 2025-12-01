@@ -25,6 +25,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     // https://mvnrepository.com/artifact/org.easymock/easymock
     testImplementation("org.easymock:easymock:5.4.0")
+    // SpotBugs annotations for @SuppressFBWarnings
+    implementation("com.github.spotbugs:spotbugs-annotations:4.7.3")
 
 }
 

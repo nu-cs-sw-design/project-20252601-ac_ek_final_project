@@ -16,7 +16,21 @@ public class PlayerControllerHuman implements PlayerController {
     private final GameUI userInterface;
 
     public PlayerControllerHuman(GameUI userInterface) {
-        this.userInterface = userInterface;
+        final GameUI realUI = userInterface;
+        this.userInterface = new GameUI() {
+            @Override
+            public void displayMessage(String key) { realUI.displayMessage(key); }
+            @Override
+            public void displayFormattedMessage(String key, Object... args) { realUI.displayFormattedMessage(key, args); }
+            @Override
+            public void clearScreen() { realUI.clearScreen(); }
+            @Override
+            public int promptPlayer(String promptKey) { return realUI.promptPlayer(promptKey); }
+            @Override
+            public java.util.Set<Integer> promptExpansionPackNumbers() { return realUI.promptExpansionPackNumbers(); }
+            @Override
+            public void changeLanguage(String language, String country) { realUI.changeLanguage(language, country); }
+        };
     }
 
     @Override

@@ -6,7 +6,7 @@ import domain.cards.expansions.ExpansionStrategy;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GameConfiguration {
+public final class GameConfiguration {
     private static final int MIN_PLAYERS = 2;
     private static final int DEFAULT_MAX_PLAYERS = 5;
     

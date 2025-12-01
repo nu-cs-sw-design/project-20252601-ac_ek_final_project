@@ -11,6 +11,9 @@ import domain.player.PlayerManager;
 import java.util.List;
 
 public class Turn {
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+        value = "EI_EXPOSE_REP2", 
+        justification = "Turn stores game engine reference to execute game logic")
     private final GameEngine game;
     private final NopeOperation nopeOperation;
     private final PlayerManager PlayerManager = new PlayerManager();

@@ -151,7 +151,9 @@ public class SwingGUI implements GameUI {
             cardPanel.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
-                    inputQueue.offer(card.index());
+                    if (!inputQueue.offer(card.index())) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
                 @Override
                 public void mouseEntered(java.awt.event.MouseEvent e) {
@@ -224,7 +226,11 @@ public class SwingGUI implements GameUI {
             drawButton.setFocusPainted(false);
             drawButton.setPreferredSize(new Dimension(200, 40));
             drawButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            drawButton.addActionListener(e -> inputQueue.offer(-1));
+            drawButton.addActionListener(e -> {
+                if (!inputQueue.offer(-1)) {
+                    Thread.currentThread().interrupt();
+                }
+            });
             buttonPanel.add(drawButton);
             
             buttonPanel.revalidate();
@@ -259,7 +265,9 @@ public class SwingGUI implements GameUI {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         button.addActionListener(e -> {
-            inputQueue.offer(value);
+            if (!inputQueue.offer(value)) {
+                Thread.currentThread().interrupt();
+            }
         });
         
         return button;
@@ -389,7 +397,11 @@ public class SwingGUI implements GameUI {
             confirmBtn.setPreferredSize(new Dimension(100, 50));
             confirmBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
-            confirmBtn.addActionListener(e -> {inputQueue.offer(-1);});
+            confirmBtn.addActionListener(e -> {
+                if (!inputQueue.offer(-1)) {
+                    Thread.currentThread().interrupt();
+                }
+            });
             
             buttonPanel.add(confirmBtn);
             buttonPanel.revalidate();
